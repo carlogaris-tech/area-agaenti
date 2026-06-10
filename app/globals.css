@@ -1,0 +1,87 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-muted: var(--sidebar-muted);
+  --color-coral: var(--coral);
+  --color-amber: var(--amber);
+
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
+}
+
+:root {
+  --radius: 0.5rem;
+
+  --background: #f8fafb;
+  --foreground: #17212b;
+
+  --card: #ffffff;
+  --card-foreground: #17212b;
+
+  --popover: #ffffff;
+  --popover-foreground: #17212b;
+
+  /* Teal brand */
+  --primary: #0f766e;
+  --primary-foreground: #ffffff;
+
+  --secondary: #eef3f7;
+  --secondary-foreground: #17212b;
+
+  --muted: #eef3f7;
+  --muted-foreground: #64717f;
+
+  --accent: #f0f7f5;
+  --accent-foreground: #0b4f4a;
+
+  --destructive: #c4513d;
+  --destructive-foreground: #ffffff;
+
+  --border: #d9e3eb;
+  --input: #d9e3eb;
+  --ring: #0f766e;
+
+  --sidebar: #17212b;
+  --sidebar-foreground: #f8fbfc;
+  --sidebar-muted: rgba(248, 251, 252, 0.68);
+
+  --coral: #c4513d;
+  --amber: #b67a1c;
+}
+
+* {
+  border-color: var(--border);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
