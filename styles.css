@@ -595,6 +595,27 @@ ol li + li {
   font-size: 0.9rem;
 }
 
+.project-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.project-actions button {
+  min-height: 34px;
+  padding: 0 10px;
+  color: #07111f;
+  background: linear-gradient(135deg, var(--teal), var(--lime));
+  box-shadow: none;
+}
+
+.project-actions button:last-child {
+  color: #ffffff;
+  background: rgba(255, 107, 74, 0.16);
+  border: 1px solid rgba(255, 107, 74, 0.35);
+}
+
 .empty-state {
   color: var(--muted);
   line-height: 1.5;
