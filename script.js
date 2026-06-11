@@ -9,6 +9,7 @@ const projectList = document.querySelector("#projectList");
 const saveProject = document.querySelector("#saveProject");
 const resetForm = document.querySelector("#resetForm");
 const methodItems = Array.from(document.querySelectorAll("[data-method]"));
+const teamItems = Array.from(document.querySelectorAll("[data-team]"));
 
 const storageKey = "officina-area-agenti-projects";
 const fieldNames = [
@@ -70,7 +71,6 @@ const serviceMethodMap = {
   "Analisi dati e AI": ["data-ai", "tech", "strategy"],
   "Strategia narrativa": ["narrative", "strategy", "creative"],
 };
-
 function value(name) {
   return form.elements[name]?.value?.trim() || "";
 }
@@ -281,6 +281,65 @@ function updateMethodHighlights() {
   });
 }
 
+function getActiveTeamMembers() {
+  const activeTeam = new Set();
+  const hasSiteSignals =
+    hasUrl("website") ||
+    checked("hasWebsite") ||
+    checked("needsSeo") ||
+    checked("keywordGap") ||
+    checked("competitorBenchmark") ||
+    checked("needsMobile") ||
+    checked("needsTracking") ||
+    checked("localSeo") ||
+    checked("contentOpportunity") ||
+    numberValue("organicTraffic") > 0 ||
+    numberValue("seoKeywords") > 0 ||
+    Boolean(value("competitors")) ||
+    Boolean(value("webNotes"));
+
+  const hasSocialSignals =
+    hasUrl("instagram") ||
+    hasUrl("facebook") ||
+    hasUrl("linkedin") ||
+    numberValue("instagramFollowers") > 0 ||
+    numberValue("instagramPosts") > 0 ||
+    numberValue("facebookFollowers") > 0 ||
+    numberValue("facebookEngagement") > 0 ||
+    numberValue("linkedinFollowers") > 0 ||
+    numberValue("linkedinPosts") > 0;
+
+  if (hasSiteSignals) {
+    activeTeam.add("web-design");
+    activeTeam.add("program-manager");
+  }
+
+  if (hasSocialSignals) {
+    activeTeam.add("social-media-manager");
+    activeTeam.add("program-manager");
+  }
+
+  if (
+    checked("needsTracking") ||
+    value("campaignType") === "Lead generation" ||
+    checkedServices().includes("Campagne Ads")
+  ) {
+    activeTeam.add("programmatic-adv-manager");
+    activeTeam.add("program-manager");
+  }
+
+  return activeTeam;
+}
+
+function updateTeamHighlights() {
+  const activeTeam = getActiveTeamMembers();
+
+  teamItems.forEach((item) => {
+    const isActive = activeTeam.has(item.dataset.team);
+    item.classList.toggle("is-active", isActive);
+  });
+}
+
 function updateInsights() {
   const scores = getScores();
   const total = clamp((scores.web + scores.social + scores.strategy) / 3);
@@ -296,6 +355,7 @@ function updateInsights() {
     .join("");
 
   updateMethodHighlights();
+  updateTeamHighlights();
 }
 
 function getProjects() {
