@@ -51,6 +51,12 @@ const checkboxNames = [
   "localSeo",
   "contentOpportunity",
 ];
+const requiredClientFields = [
+  ["company", "Nome azienda"],
+  ["contact", "Referente"],
+  ["email", "Email"],
+  ["phone", "Telefono"],
+];
 
 const serviceMethodMap = {
   "Sito web": ["tech", "strategy"],
@@ -371,6 +377,18 @@ function renderProjects() {
 }
 
 function saveCurrentProject() {
+  const missingFields = requiredClientFields
+    .filter(([name]) => !value(name))
+    .map(([, label]) => label);
+
+  if (missingFields.length > 0) {
+    window.alert(
+      `Prima di salvare il progetto completa i dati cliente:\n\n- ${missingFields.join("\n- ")}`
+    );
+    form.elements[requiredClientFields.find(([name]) => !value(name))[0]]?.focus();
+    return;
+  }
+
   const scores = getScores();
   const total = clamp((scores.web + scores.social + scores.strategy) / 3);
   const company = value("company") || "Cliente senza nome";
