@@ -11,6 +11,46 @@ const resetForm = document.querySelector("#resetForm");
 const methodItems = Array.from(document.querySelectorAll("[data-method]"));
 
 const storageKey = "officina-area-agenti-projects";
+const fieldNames = [
+  "company",
+  "contact",
+  "email",
+  "phone",
+  "sector",
+  "province",
+  "website",
+  "organicTraffic",
+  "seoKeywords",
+  "competitors",
+  "webNotes",
+  "instagram",
+  "instagramFollowers",
+  "instagramPosts",
+  "facebook",
+  "facebookFollowers",
+  "facebookEngagement",
+  "linkedin",
+  "linkedinFollowers",
+  "linkedinPosts",
+  "goal",
+  "priority",
+  "budget",
+  "status",
+  "dataInsight",
+  "brandNarrative",
+  "aiUse",
+  "campaignType",
+];
+const checkboxNames = [
+  "hasWebsite",
+  "needsSeo",
+  "keywordGap",
+  "competitorBenchmark",
+  "needsMobile",
+  "needsTracking",
+  "localSeo",
+  "contentOpportunity",
+];
 
 const serviceMethodMap = {
   "Sito web": ["tech", "strategy"],
@@ -264,6 +304,46 @@ function setProjects(projects) {
   localStorage.setItem(storageKey, JSON.stringify(projects));
 }
 
+function collectFormData() {
+  const fields = {};
+  const checks = {};
+
+  fieldNames.forEach((name) => {
+    fields[name] = value(name);
+  });
+
+  checkboxNames.forEach((name) => {
+    checks[name] = checked(name);
+  });
+
+  return {
+    fields,
+    checks,
+    services: checkedServices(),
+  };
+}
+
+function applyProject(project) {
+  fieldNames.forEach((name) => {
+    if (form.elements[name]) {
+      form.elements[name].value = project.fields?.[name] || "";
+    }
+  });
+
+  checkboxNames.forEach((name) => {
+    if (form.elements[name]) {
+      form.elements[name].checked = Boolean(project.checks?.[name]);
+    }
+  });
+
+  form.querySelectorAll('input[name="services"]').forEach((item) => {
+    item.checked = (project.services || []).includes(item.value);
+  });
+
+  updateInsights();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
 function renderProjects() {
   const projects = getProjects();
 
@@ -275,11 +355,15 @@ function renderProjects() {
 
   projectList.innerHTML = projects
     .map(
-      (project) => `
+      (project, index) => `
         <article class="project-item">
           <strong>${escapeHtml(project.company)}</strong>
           <span>${escapeHtml(project.goal)}</span>
           <span>${escapeHtml(project.status)} - potenziale ${project.score}/100</span>
+          <div class="project-actions">
+            <button type="button" data-project-action="load" data-project-index="${index}">Apri</button>
+            <button type="button" data-project-action="delete" data-project-index="${index}">Elimina</button>
+          </div>
         </article>
       `
     )
@@ -291,22 +375,48 @@ function saveCurrentProject() {
   const total = clamp((scores.web + scores.social + scores.strategy) / 3);
   const company = value("company") || "Cliente senza nome";
   const projects = getProjects();
+  const projectData = collectFormData();
 
   projects.unshift({
+    id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
     company,
     goal: value("goal"),
     status: value("status"),
     score: total,
     createdAt: new Date().toISOString(),
+    ...projectData,
   });
 
   setProjects(projects.slice(0, 8));
   renderProjects();
 }
 
+function handleProjectAction(event) {
+  const button = event.target.closest("[data-project-action]");
+  if (!button) return;
+
+  const index = Number(button.dataset.projectIndex);
+  const projects = getProjects();
+  const project = projects[index];
+
+  if (!project) return;
+
+  if (button.dataset.projectAction === "load") {
+    applyProject(project);
+    return;
+  }
+
+  if (button.dataset.projectAction === "delete") {
+    projects.splice(index, 1);
+    setProjects(projects);
+    renderProjects();
+  }
+}
+
 form.addEventListener("input", updateInsights);
 form.addEventListener("change", updateInsights);
 saveProject.addEventListener("click", saveCurrentProject);
+projectList.addEventListener("click", handleProjectAction);
 resetForm.addEventListener("click", () => {
   form.reset();
   updateInsights();
