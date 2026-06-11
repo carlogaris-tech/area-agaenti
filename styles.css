@@ -559,6 +559,22 @@ ol li + li {
   color: #dffcf8;
   background: rgba(32, 214, 197, 0.08);
   font-weight: 750;
+  transition:
+    background 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease,
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.method-list span.is-active {
+  color: #07111f;
+  border-color: rgba(255, 212, 59, 0.65);
+  background: linear-gradient(135deg, var(--amber), var(--lime));
+  box-shadow:
+    0 12px 30px rgba(255, 212, 59, 0.2),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.3);
+  transform: translateX(4px);
 }
 
 .project-item {
