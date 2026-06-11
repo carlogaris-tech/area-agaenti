@@ -8,8 +8,22 @@ const recommendations = document.querySelector("#recommendations");
 const projectList = document.querySelector("#projectList");
 const saveProject = document.querySelector("#saveProject");
 const resetForm = document.querySelector("#resetForm");
+const methodItems = Array.from(document.querySelectorAll("[data-method]"));
 
 const storageKey = "officina-area-agenti-projects";
+
+const serviceMethodMap = {
+  "Sito web": ["tech", "strategy"],
+  "Audit SEO Semrush": ["seo", "tech", "data-ai"],
+  "SEO locale": ["seo", "strategy"],
+  "Analisi social": ["social", "data-ai", "creative"],
+  "Benchmark competitor": ["social", "seo", "strategy", "data-ai"],
+  "Campagne Ads": ["creative", "data-ai", "strategy"],
+  Newsletter: ["narrative", "creative", "strategy"],
+  "CRM e tracking": ["tech", "data-ai", "strategy"],
+  "Analisi dati e AI": ["data-ai", "tech", "strategy"],
+  "Strategia narrativa": ["narrative", "strategy", "creative"],
+};
 
 function value(name) {
   return form.elements[name]?.value?.trim() || "";
@@ -175,6 +189,52 @@ function buildRecommendations(scores) {
   return items.slice(0, 5);
 }
 
+function getActiveMethods() {
+  const activeMethods = new Set();
+  const services = checkedServices();
+
+  services.forEach((service) => {
+    (serviceMethodMap[service] || []).forEach((method) => {
+      activeMethods.add(method);
+    });
+  });
+
+  if (checked("needsSeo") || checked("keywordGap") || checked("localSeo")) {
+    activeMethods.add("seo");
+    activeMethods.add("data-ai");
+  }
+
+  if (checked("competitorBenchmark") || value("competitors")) {
+    activeMethods.add("social");
+    activeMethods.add("strategy");
+  }
+
+  if (value("aiUse") !== "Da valutare") {
+    activeMethods.add("data-ai");
+    activeMethods.add("tech");
+  }
+
+  if (value("campaignType") !== "Da definire") {
+    activeMethods.add("creative");
+    activeMethods.add("strategy");
+  }
+
+  if (value("brandNarrative").length > 0) {
+    activeMethods.add("narrative");
+  }
+
+  return activeMethods;
+}
+
+function updateMethodHighlights() {
+  const activeMethods = getActiveMethods();
+
+  methodItems.forEach((item) => {
+    const isActive = activeMethods.has(item.dataset.method);
+    item.classList.toggle("is-active", isActive);
+  });
+}
+
 function updateInsights() {
   const scores = getScores();
   const total = clamp((scores.web + scores.social + scores.strategy) / 3);
@@ -188,6 +248,8 @@ function updateInsights() {
   recommendations.innerHTML = buildRecommendations(scores)
     .map((item) => `<li>${escapeHtml(item)}</li>`)
     .join("");
+
+  updateMethodHighlights();
 }
 
 function getProjects() {
