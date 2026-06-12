@@ -8,8 +8,11 @@ const recommendations = document.querySelector("#recommendations");
 const projectList = document.querySelector("#projectList");
 const saveProject = document.querySelector("#saveProject");
 const resetForm = document.querySelector("#resetForm");
+const generateAiStrategy = document.querySelector("#generateAiStrategy");
+const aiOutput = document.querySelector("#aiOutput");
 const methodItems = Array.from(document.querySelectorAll("[data-method]"));
 const teamItems = Array.from(document.querySelectorAll("[data-team]"));
+let aiStrategyVisible = false;
 
 const storageKey = "officina-area-agenti-projects";
 const fieldNames = [
@@ -71,6 +74,13 @@ const serviceMethodMap = {
   "Analisi dati e AI": ["data-ai", "tech", "strategy"],
   "Strategia narrativa": ["narrative", "strategy", "creative"],
 };
+const teamLabels = {
+  "web-design": "Web design",
+  "social-media-manager": "Social media manager",
+  "program-manager": "Program manager",
+  "programmatic-adv-manager": "Programmatic ADV manager",
+};
+
 function value(name) {
   return form.elements[name]?.value?.trim() || "";
 }
@@ -93,6 +103,22 @@ function escapeHtml(text) {
   const div = document.createElement("div");
   div.textContent = text;
   return div.innerHTML;
+}
+
+function renderList(items) {
+  return `<ul>${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
+}
+
+function getTopValues(items, max = 3) {
+  const counts = items.reduce((acc, item) => {
+    if (item) acc[item] = (acc[item] || 0) + 1;
+    return acc;
+  }, {});
+
+  return Object.entries(counts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, max)
+    .map(([item]) => item);
 }
 
 function hasUrl(name) {
@@ -340,6 +366,129 @@ function updateTeamHighlights() {
   });
 }
 
+function buildMemoryInsight() {
+  const projects = getProjects();
+
+  if (projects.length === 0) {
+    return "Memoria demo ancora vuota: quando gli agenti salvano progetti, l'assistente inizia a riconoscere settori, servizi ricorrenti e approcci commerciali piu usati.";
+  }
+
+  const sectors = getTopValues(projects.map((project) => project.fields?.sector));
+  const services = getTopValues(projects.flatMap((project) => project.services || []));
+  const statuses = getTopValues(projects.map((project) => project.status));
+  const details = [];
+
+  details.push(`${projects.length} progetti salvati nella memoria locale della demo`);
+  if (sectors.length > 0) details.push(`settori piu presenti: ${sectors.join(", ")}`);
+  if (services.length > 0) details.push(`servizi ricorrenti: ${services.join(", ")}`);
+  if (statuses.length > 0) details.push(`stati piu frequenti: ${statuses.join(", ")}`);
+
+  return details.join(". ") + ".";
+}
+
+function buildAiStrategyHtml() {
+  const scores = getScores();
+  const total = clamp((scores.web + scores.social + scores.strategy) / 3);
+  const company = value("company") || "questo cliente";
+  const sector = value("sector").toLowerCase();
+  const province = value("province");
+  const services = checkedServices();
+  const activeTeam = Array.from(getActiveTeamMembers()).map((team) => teamLabels[team]);
+  const activeMethods = Array.from(getActiveMethods()).map((method) => {
+    const item = methodItems.find((element) => element.dataset.method === method);
+    return item?.textContent || method;
+  });
+  const opportunities = [];
+  const nextSteps = [];
+
+  if (hasUrl("website") || checked("hasWebsite")) {
+    opportunities.push(
+      "Partire da audit sito, performance, UX e tracciamento per capire dove si perde potenziale commerciale."
+    );
+  } else {
+    opportunities.push(
+      "Recuperare o creare una presenza web solida: senza sito o landing diventa difficile misurare conversioni e campagne."
+    );
+  }
+
+  if (checked("needsSeo") || checked("keywordGap") || checked("localSeo")) {
+    opportunities.push(
+      "Usare Semrush per trasformare keyword gap, SEO locale e competitor in un piano contenuti misurabile."
+    );
+  }
+
+  if (hasUrl("instagram") || hasUrl("facebook") || hasUrl("linkedin")) {
+    opportunities.push(
+      "Leggere frequenza, follower e interazioni social per capire quali contenuti possono sostenere awareness, lead e reputazione."
+    );
+  } else {
+    opportunities.push(
+      "Chiedere i link social prima della proposta: servono per valutare continuita editoriale e coinvolgimento reale."
+    );
+  }
+
+  if (value("budget") === "Da definire") {
+    opportunities.push(
+      "Portare il cliente verso una proposta modulare: audit iniziale, priorita operative e secondo step di crescita."
+    );
+  }
+
+  if (value("dataInsight")) {
+    opportunities.push(`Insight da valorizzare: ${value("dataInsight")}`);
+  }
+
+  nextSteps.push(`Preparare una sintesi commerciale per ${company} con potenziale stimato ${total}/100.`);
+  nextSteps.push(`Collegare l'obiettivo "${value("goal")}" a una proposta concreta e facile da approvare.`);
+
+  if (services.length > 0) {
+    nextSteps.push(`Costruire il perimetro iniziale su: ${services.slice(0, 4).join(", ")}.`);
+  } else {
+    nextSteps.push("Selezionare almeno due servizi da valutare per rendere piu precisa la proposta.");
+  }
+
+  nextSteps.push("Salvare il progetto e usare il feedback dell'agente per migliorare le prossime strategie.");
+
+  return `
+    <article class="ai-memory">
+      <h3>Memoria agente</h3>
+      <p>${escapeHtml(buildMemoryInsight())}</p>
+    </article>
+    <article>
+      <h3>Lettura del cliente</h3>
+      <p>
+        ${escapeHtml(company)}${province ? `, area ${escapeHtml(province)}` : ""}:
+        cliente ${escapeHtml(sector)} con priorita ${escapeHtml(value("priority").toLowerCase())}
+        e obiettivo "${escapeHtml(value("goal"))}".
+      </p>
+    </article>
+    <article>
+      <h3>Opportunita AI suggerite</h3>
+      ${renderList(opportunities.slice(0, 5))}
+    </article>
+    <article>
+      <h3>Skill e team consigliati</h3>
+      ${renderList([
+        `Skill da attivare: ${activeMethods.length > 0 ? activeMethods.join(", ") : "visione strategica e raccolta dati"}.`,
+        `Team da coinvolgere: ${activeTeam.length > 0 ? activeTeam.join(", ") : "Program manager per impostare il primo perimetro"}.`,
+      ])}
+    </article>
+    <article>
+      <h3>Prossime azioni per l'agente</h3>
+      ${renderList(nextSteps)}
+    </article>
+  `;
+}
+
+function renderAiStrategy() {
+  aiStrategyVisible = true;
+  aiOutput.innerHTML = buildAiStrategyHtml();
+}
+
+function handleFormUpdate() {
+  updateInsights();
+  if (aiStrategyVisible) renderAiStrategy();
+}
+
 function updateInsights() {
   const scores = getScores();
   const total = clamp((scores.web + scores.social + scores.strategy) / 3);
@@ -407,6 +556,7 @@ function applyProject(project) {
   });
 
   updateInsights();
+  if (aiStrategyVisible) renderAiStrategy();
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -467,6 +617,7 @@ function saveCurrentProject() {
 
   setProjects(projects.slice(0, 8));
   renderProjects();
+  if (aiStrategyVisible) renderAiStrategy();
 }
 
 function handleProjectAction(event) {
@@ -488,16 +639,18 @@ function handleProjectAction(event) {
     projects.splice(index, 1);
     setProjects(projects);
     renderProjects();
+    if (aiStrategyVisible) renderAiStrategy();
   }
 }
 
-form.addEventListener("input", updateInsights);
-form.addEventListener("change", updateInsights);
+form.addEventListener("input", handleFormUpdate);
+form.addEventListener("change", handleFormUpdate);
 saveProject.addEventListener("click", saveCurrentProject);
+generateAiStrategy.addEventListener("click", renderAiStrategy);
 projectList.addEventListener("click", handleProjectAction);
 resetForm.addEventListener("click", () => {
   form.reset();
-  updateInsights();
+  handleFormUpdate();
 });
 
 updateInsights();
