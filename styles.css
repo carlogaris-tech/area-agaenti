@@ -412,6 +412,7 @@ input[type="checkbox"] {
 
 .score-panel,
 .recommendation-panel,
+.ai-panel,
 .method-summary,
 .pipeline-panel {
   padding: 22px;
@@ -514,6 +515,69 @@ ol {
 
 ol li + li {
   margin-top: 10px;
+}
+
+.ai-panel {
+  border-color: rgba(157, 124, 255, 0.28);
+  background:
+    radial-gradient(circle at 100% 0%, rgba(157, 124, 255, 0.2), transparent 42%),
+    linear-gradient(155deg, rgba(17, 29, 45, 0.96), rgba(9, 18, 31, 0.96));
+}
+
+.ai-intro {
+  margin: 12px 0 16px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.ai-button {
+  width: 100%;
+}
+
+.ai-output {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.ai-output article {
+  padding: 13px;
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.055);
+}
+
+.ai-output h3 {
+  margin: 0 0 8px;
+  color: #ffffff;
+  font-size: 0.96rem;
+  line-height: 1.25;
+}
+
+.ai-output p,
+.ai-output ul {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.ai-output ul {
+  padding-left: 18px;
+}
+
+.ai-output li + li {
+  margin-top: 6px;
+}
+
+.ai-memory {
+  color: #07111f;
+  border-color: rgba(255, 212, 59, 0.52);
+  background: linear-gradient(135deg, var(--amber), var(--lime));
+}
+
+.ai-memory h3,
+.ai-memory p {
+  color: #07111f;
 }
 
 .project-list {
@@ -674,7 +738,7 @@ ol li + li {
   }
 
   .sidebar nav {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 
   .agent-card {
@@ -719,6 +783,7 @@ ol li + li {
   .client-panel,
   .score-panel,
   .recommendation-panel,
+  .ai-panel,
   .pipeline-panel {
     padding: 18px;
   }
