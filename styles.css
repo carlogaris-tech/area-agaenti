@@ -331,15 +331,15 @@ button {
 .agent-welcome-card {
   grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
-  gap: 14px;
+  gap: 18px;
 }
 
 .agent-photo {
-  width: 58px;
-  height: 58px;
-  min-width: 58px;
-  max-width: 58px;
-  max-height: 58px;
+  width: 92px;
+  height: 92px;
+  min-width: 92px;
+  max-width: 92px;
+  max-height: 92px;
   display: block;
   border-radius: 999px;
   object-fit: cover;
