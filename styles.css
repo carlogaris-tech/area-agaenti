@@ -36,6 +36,23 @@ body {
     linear-gradient(135deg, #08101e 0%, #0b1828 46%, #09121f 100%);
 }
 
+body.is-locked {
+  overflow: hidden;
+}
+
+body.is-locked .app-shell {
+  max-height: 100vh;
+  overflow: hidden;
+  filter: blur(14px);
+  opacity: 0.18;
+  pointer-events: none;
+  user-select: none;
+}
+
+body:not(.is-locked) .password-gate {
+  display: none;
+}
+
 button,
 input,
 select,
@@ -57,6 +74,65 @@ a {
   min-height: 100vh;
   display: grid;
   grid-template-columns: 280px minmax(0, 1fr);
+}
+
+.password-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(circle at 28% 18%, rgba(32, 214, 197, 0.22), transparent 28vw),
+    radial-gradient(circle at 78% 18%, rgba(255, 212, 59, 0.18), transparent 24vw),
+    rgba(7, 17, 31, 0.92);
+}
+
+.gate-card {
+  width: min(480px, 100%);
+  display: grid;
+  gap: 22px;
+  padding: 26px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  background:
+    linear-gradient(145deg, rgba(17, 29, 45, 0.97), rgba(7, 17, 31, 0.97)),
+    rgba(17, 29, 45, 0.96);
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.46);
+}
+
+.gate-brand img {
+  width: 52px;
+  height: 52px;
+}
+
+.gate-card h2 {
+  font-size: clamp(1.7rem, 5vw, 2.45rem);
+}
+
+.gate-card p {
+  margin: 10px 0 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.gate-form {
+  display: grid;
+  gap: 14px;
+}
+
+.gate-error {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 107, 74, 0.36);
+  border-radius: 8px;
+  color: #ffd5ca;
+  background: rgba(255, 107, 74, 0.12);
+}
+
+.gate-error[hidden] {
+  display: none;
 }
 
 .sidebar {
