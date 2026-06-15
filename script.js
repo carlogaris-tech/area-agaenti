@@ -10,10 +10,16 @@ const saveProject = document.querySelector("#saveProject");
 const resetForm = document.querySelector("#resetForm");
 const generateAiStrategy = document.querySelector("#generateAiStrategy");
 const aiOutput = document.querySelector("#aiOutput");
+const passwordGate = document.querySelector("#passwordGate");
+const passwordForm = document.querySelector("#passwordForm");
+const panelPassword = document.querySelector("#panelPassword");
+const passwordError = document.querySelector("#passwordError");
 const methodItems = Array.from(document.querySelectorAll("[data-method]"));
 const teamItems = Array.from(document.querySelectorAll("[data-team]"));
 let aiStrategyVisible = false;
 
+const accessPassword = "strategyhub2026";
+const accessStorageKey = "officina-strategy-hub-access";
 const storageKey = "officina-area-agenti-projects";
 const fieldNames = [
   "company",
@@ -80,6 +86,37 @@ const teamLabels = {
   "program-manager": "Program manager",
   "programmatic-adv-manager": "Programmatic ADV manager",
 };
+
+function unlockPanel(storeAccess = true) {
+  document.body.classList.remove("is-locked");
+  passwordGate?.setAttribute("hidden", "");
+  if (storeAccess) sessionStorage.setItem(accessStorageKey, "ok");
+}
+
+function initPasswordGate() {
+  if (!passwordForm || !panelPassword) return;
+
+  if (sessionStorage.getItem(accessStorageKey) === "ok") {
+    unlockPanel(false);
+    return;
+  }
+
+  panelPassword.focus();
+
+  passwordForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    if (panelPassword.value.trim() === accessPassword) {
+      passwordError.hidden = true;
+      panelPassword.value = "";
+      unlockPanel();
+      return;
+    }
+
+    passwordError.hidden = false;
+    panelPassword.select();
+  });
+}
 
 function value(name) {
   return form.elements[name]?.value?.trim() || "";
@@ -653,5 +690,6 @@ resetForm.addEventListener("click", () => {
   handleFormUpdate();
 });
 
+initPasswordGate();
 updateInsights();
 renderProjects();
