@@ -328,6 +328,44 @@ button {
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+.agent-welcome-card {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 14px;
+}
+
+.agent-photo {
+  width: 58px;
+  height: 58px;
+  min-width: 58px;
+  max-width: 58px;
+  max-height: 58px;
+  display: block;
+  border-radius: 999px;
+  object-fit: cover;
+  object-position: center top;
+  background: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.76);
+  box-shadow:
+    0 0 0 4px rgba(32, 214, 197, 0.16),
+    0 14px 26px rgba(0, 0, 0, 0.28);
+}
+
+.agent-welcome-card strong,
+.agent-welcome-card small {
+  display: block;
+}
+
+.agent-welcome-card strong {
+  color: #ffffff;
+}
+
+.agent-welcome-card small {
+  margin-top: 4px;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
 .content-grid {
   grid-template-columns: minmax(0, 1fr) 390px;
   align-items: start;
