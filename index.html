@@ -12,7 +12,44 @@
     <link rel="stylesheet" href="./styles.css">
     <script src="./script.js" defer></script>
   </head>
-  <body>
+  <body class="is-locked">
+    <section class="password-gate" id="passwordGate" aria-label="Accesso protetto">
+      <div class="gate-card">
+        <div class="brand gate-brand">
+          <img src="./favicon_OT.png" alt="">
+          <span>
+            <strong>Officina.tech</strong>
+            <small>Strategy Hub</small>
+          </span>
+        </div>
+
+        <div>
+          <p class="eyebrow">Accesso riservato</p>
+          <h2>Inserisci la password per entrare nel pannello</h2>
+          <p>
+            Protezione leggera per la demo pubblica: serve a tenere il pannello
+            nascosto da accessi casuali.
+          </p>
+        </div>
+
+        <form class="gate-form" id="passwordForm">
+          <label>
+            Password
+            <input
+              id="panelPassword"
+              type="password"
+              placeholder="Password demo"
+              autocomplete="current-password"
+            >
+          </label>
+          <button class="primary-button" type="submit">Entra nel pannello</button>
+          <p class="gate-error" id="passwordError" hidden>
+            Password non corretta. Riprova.
+          </p>
+        </form>
+      </div>
+    </section>
+
     <main class="app-shell">
       <aside class="sidebar" aria-label="Navigazione area agenti">
         <a class="brand" href="../">
