@@ -15,10 +15,8 @@ const confirmStrategy = document.querySelector("#confirmStrategy");
 const strategyStatus = document.querySelector("#strategyStatus");
 const proposalActions = document.querySelector("#proposalActions");
 const generateClientProposal = document.querySelector("#generateClientProposal");
-const prepareCanvaPresentation = document.querySelector("#prepareCanvaPresentation");
 const printClientProposal = document.querySelector("#printClientProposal");
 const proposalDeck = document.querySelector("#proposalDeck");
-const canvaBrief = document.querySelector("#canvaBrief");
 const presentationPreview = document.querySelector("#presentationPreview");
 const presentationStage = document.querySelector("#presentationStage");
 const presentationTitle = document.querySelector("#presentationTitle");
@@ -116,7 +114,7 @@ const serviceMethodMap = {
 const teamLabels = {
   "web-design": "Web design",
   "social-media-manager": "Social media manager",
-  "program-manager": "Program manager",
+  "program-manager": "Campaign Manager",
   "programmatic-adv-manager": "Programmatic ADV manager",
 };
 const campaignLabels = {
@@ -634,7 +632,7 @@ function buildAiStrategyHtml() {
       <h3>Skill e team consigliati</h3>
       ${renderList([
         `Skill da attivare: ${activeMethods.length > 0 ? activeMethods.join(", ") : "visione strategica e raccolta dati"}.`,
-        `Team da coinvolgere: ${activeTeam.length > 0 ? activeTeam.join(", ") : "Program manager per impostare il primo perimetro"}.`,
+        `Team da coinvolgere: ${activeTeam.length > 0 ? activeTeam.join(", ") : "Campaign Manager per impostare il primo perimetro"}.`,
       ])}
     </article>
     <article>
@@ -720,7 +718,7 @@ function buildRecommendedStrategyText() {
     "Team da coinvolgere",
     activeTeam.length > 0
       ? activeTeam.map((member) => `- ${member}`).join("\n")
-      : "- Program manager\n- Team specialistico da definire dopo la raccolta dati",
+      : "- Campaign Manager\n- Team specialistico da definire dopo la raccolta dati",
     "",
     "Prossimo passo consigliato",
     "Preparare una proposta breve con audit iniziale, priorita operative, canali da attivare, budget indicativo e criteri di misurazione.",
@@ -914,19 +912,35 @@ function buildClientProposalHtml() {
         <p class="eyebrow">Team e prossimi passi</p>
         <h3>Come partire</h3>
       </div>
-      ${getProposalList(activeTeam, ["Program manager", "Team specialistico da definire"])}
+      ${getProposalList(activeTeam, ["Campaign Manager", "Team specialistico da definire"])}
       <p><strong>Prossimo passo:</strong> call di allineamento, raccolta accessi e definizione della proposta economica.</p>
     </article>
   `;
 }
 
 function updatePresentationSlide() {
-  if (!presentationStage || presentationSlides.length === 0) return;
+  if (!presentationStage) return;
 
-  presentationStage.innerHTML = presentationSlides[activeSlideIndex].outerHTML;
-  slideCounter.textContent = `${activeSlideIndex + 1} / ${presentationSlides.length}`;
-  prevSlide.disabled = activeSlideIndex === 0;
-  nextSlide.disabled = activeSlideIndex === presentationSlides.length - 1;
+  if (presentationSlides.length === 0) {
+    presentationStage.innerHTML = `
+      <article class="proposal-slide cover presentation-fallback">
+        <div>
+          <p class="eyebrow">Presentazione cliente</p>
+          <h3>Anteprima non disponibile</h3>
+          <p>Conferma la strategia e riapri l'anteprima per generare le slide della proposta.</p>
+        </div>
+      </article>
+    `;
+    if (slideCounter) slideCounter.textContent = "0 / 0";
+    if (prevSlide) prevSlide.disabled = true;
+    if (nextSlide) nextSlide.disabled = true;
+    return;
+  }
+
+  presentationStage.replaceChildren(presentationSlides[activeSlideIndex].cloneNode(true));
+  if (slideCounter) slideCounter.textContent = `${activeSlideIndex + 1} / ${presentationSlides.length}`;
+  if (prevSlide) prevSlide.disabled = activeSlideIndex === 0;
+  if (nextSlide) nextSlide.disabled = activeSlideIndex === presentationSlides.length - 1;
 }
 
 function openPresentationPreview() {
@@ -938,7 +952,7 @@ function openPresentationPreview() {
 
   presentationSlides = Array.from(proposalDeck.querySelectorAll(".proposal-slide"));
   activeSlideIndex = 0;
-  presentationTitle.textContent = `Proposta per ${value("company") || "cliente"}`;
+  if (presentationTitle) presentationTitle.textContent = `Proposta per ${value("company") || "cliente"}`;
   presentationPreview.hidden = false;
   document.body.classList.add("presentation-open");
   updatePresentationSlide();
@@ -957,67 +971,6 @@ function renderClientProposal(openPreview = true) {
   proposalDeck.innerHTML = buildClientProposalHtml();
   proposalDeck.hidden = openPreview;
   if (openPreview) openPresentationPreview();
-}
-
-function buildCanvaBriefHtml() {
-  const scores = getScores();
-  const company = value("company") || "Cliente";
-  const strategy = value("proposedStrategy") || buildRecommendedStrategyText();
-  const strategyLines = strategy.split("\n").filter(Boolean);
-  const services = checkedServices();
-  const campaigns = checkedCampaigns();
-  const activeTeam = Array.from(getActiveTeamMembers()).map((team) => teamLabels[team]);
-  const slides = [
-    {
-      title: `Proposta digitale per ${company}`,
-      body: `Obiettivo: ${value("goal")}. Potenziale cliente: ${getTotalScore(scores)}/100.`,
-    },
-    {
-      title: "Scenario digitale",
-      body: `Sito ${scores.web}/100, social ${scores.social}/100, campagne ${scores.campaign}/100. Settore: ${value("sector")}.`,
-    },
-    {
-      title: "Opportunita rilevate",
-      body: strategyLines.slice(2, 5).join(" ") || "Sintesi delle opportunita emerse da sito, social, campagne e dati disponibili.",
-    },
-    {
-      title: "Strategia Officina.Tech",
-      body: strategyLines.slice(5, 10).join(" ") || "Direzione strategica consigliata e modificata dall'agente.",
-    },
-    {
-      title: "Piano operativo",
-      body: [...services, ...campaigns].slice(0, 6).join(", ") || "Audit, strategia, campagne, contenuti e misurazione.",
-    },
-    {
-      title: "Team e prossimi passi",
-      body: `${activeTeam.join(", ") || "Team da definire"}. Prossimo passo: call di allineamento, raccolta accessi e proposta economica.`,
-    },
-  ];
-
-  return `
-    <div>
-      <p class="eyebrow">Canva</p>
-      <h3>Brief presentazione cliente</h3>
-      <p>Contenuti pronti da usare per creare una presentazione grafica in Canva.</p>
-    </div>
-    ${slides
-      .map(
-        (slide, index) => `
-          <article>
-            <strong>Slide ${index + 1}: ${escapeHtml(slide.title)}</strong>
-            <span>${escapeHtml(slide.body)}</span>
-          </article>
-        `
-      )
-      .join("")}
-  `;
-}
-
-function renderCanvaBrief() {
-  if (!canvaBrief) return;
-  if (!value("proposedStrategy")) fillRecommendedStrategy(true);
-  canvaBrief.innerHTML = buildCanvaBriefHtml();
-  canvaBrief.hidden = false;
 }
 
 function renderAiStrategy(forceStrategy = false) {
@@ -1215,9 +1168,6 @@ if (confirmStrategy) {
 if (generateClientProposal) {
   generateClientProposal.addEventListener("click", () => renderClientProposal(true));
 }
-if (prepareCanvaPresentation) {
-  prepareCanvaPresentation.addEventListener("click", renderCanvaBrief);
-}
 if (printClientProposal) {
   printClientProposal.addEventListener("click", () => {
     if (proposalDeck?.hidden) renderClientProposal(false);
@@ -1261,10 +1211,6 @@ resetForm.addEventListener("click", () => {
   if (proposalDeck) {
     proposalDeck.hidden = true;
     proposalDeck.innerHTML = "";
-  }
-  if (canvaBrief) {
-    canvaBrief.hidden = true;
-    canvaBrief.innerHTML = "";
   }
   closePresentationPreview();
   if (aiOutput) {
