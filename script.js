@@ -853,8 +853,15 @@ function buildClientProposalHtml() {
   if (checked("positioning")) opportunities.push("Lavorare sul posizionamento organico e sulle keyword prioritarie.");
   if (checked("competitorBenchmark")) opportunities.push("Usare benchmark competitor per individuare spazi di crescita.");
 
+  const proposalLogo = `
+    <div class="proposal-brand">
+      <img src="./officina-tech-logo.png" alt="Officina.Tech">
+    </div>
+  `;
+
   return `
     <article class="proposal-slide cover">
+      ${proposalLogo}
       <div>
         <p class="eyebrow">Proposta cliente</p>
         <h3>${escapeHtml(company)}</h3>
@@ -867,6 +874,7 @@ function buildClientProposalHtml() {
       </div>
     </article>
     <article class="proposal-slide">
+      ${proposalLogo}
       <div>
         <p class="eyebrow">Scenario</p>
         <h3>Sito, social e campagne</h3>
@@ -880,6 +888,7 @@ function buildClientProposalHtml() {
       ], [])}
     </article>
     <article class="proposal-slide">
+      ${proposalLogo}
       <div>
         <p class="eyebrow">Opportunita</p>
         <h3>Dove possiamo creare valore</h3>
@@ -890,6 +899,7 @@ function buildClientProposalHtml() {
       ])}
     </article>
     <article class="proposal-slide">
+      ${proposalLogo}
       <div>
         <p class="eyebrow">Strategia</p>
         <h3>Direzione consigliata</h3>
@@ -897,6 +907,7 @@ function buildClientProposalHtml() {
       <p>${escapeHtml(strategyExcerpt)}</p>
     </article>
     <article class="proposal-slide">
+      ${proposalLogo}
       <div>
         <p class="eyebrow">Piano operativo</p>
         <h3>Servizi e canali da attivare</h3>
@@ -908,6 +919,7 @@ function buildClientProposalHtml() {
       ])}
     </article>
     <article class="proposal-slide">
+      ${proposalLogo}
       <div>
         <p class="eyebrow">Team e prossimi passi</p>
         <h3>Come partire</h3>
