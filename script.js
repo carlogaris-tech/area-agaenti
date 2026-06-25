@@ -820,7 +820,7 @@ function fillRecommendedStrategy(force = false) {
   if (!force && proposedStrategy.value.trim()) return;
 
   proposedStrategy.value = buildRecommendedStrategyText();
-  strategyStatus.hidden = true;
+  if (strategyStatus) strategyStatus.hidden = true;
 }
 
 function getProposalList(items, fallback) {
@@ -910,6 +910,7 @@ function buildClientProposalHtml() {
 }
 
 function renderClientProposal() {
+  if (!proposalDeck) return;
   if (!value("proposedStrategy")) fillRecommendedStrategy(true);
   proposalDeck.innerHTML = buildClientProposalHtml();
   proposalDeck.hidden = false;
@@ -926,8 +927,8 @@ function handleFormUpdate() {
   updateInsights();
   if (aiStrategyVisible) renderAiStrategy(false);
   if (document.activeElement === form.elements.proposedStrategy) {
-    strategyStatus.hidden = true;
-    proposalActions.hidden = true;
+    if (strategyStatus) strategyStatus.hidden = true;
+    if (proposalActions) proposalActions.hidden = true;
   }
 }
 
@@ -1088,34 +1089,48 @@ function handleProjectAction(event) {
 form.addEventListener("input", handleFormUpdate);
 form.addEventListener("change", handleFormUpdate);
 saveProject.addEventListener("click", saveCurrentProject);
-generateAiStrategy.addEventListener("click", () => renderAiStrategy(true));
-generateRecommendedStrategy.addEventListener("click", () => {
-  fillGuidedStrategyFields(true);
-  fillRecommendedStrategy(true);
-  updateInsights();
-});
-confirmStrategy.addEventListener("click", () => {
-  if (!value("proposedStrategy")) {
+if (generateAiStrategy) {
+  generateAiStrategy.addEventListener("click", () => renderAiStrategy(true));
+}
+if (generateRecommendedStrategy) {
+  generateRecommendedStrategy.addEventListener("click", () => {
+    fillGuidedStrategyFields(true);
     fillRecommendedStrategy(true);
-  }
-  strategyStatus.hidden = false;
-  proposalActions.hidden = false;
-});
-generateClientProposal.addEventListener("click", renderClientProposal);
-printClientProposal.addEventListener("click", () => {
-  if (proposalDeck.hidden) renderClientProposal();
-  window.print();
-});
+    updateInsights();
+  });
+}
+if (confirmStrategy) {
+  confirmStrategy.addEventListener("click", () => {
+    if (!value("proposedStrategy")) {
+      fillRecommendedStrategy(true);
+    }
+    if (strategyStatus) strategyStatus.hidden = false;
+    if (proposalActions) proposalActions.hidden = false;
+  });
+}
+if (generateClientProposal) {
+  generateClientProposal.addEventListener("click", renderClientProposal);
+}
+if (printClientProposal) {
+  printClientProposal.addEventListener("click", () => {
+    if (proposalDeck?.hidden) renderClientProposal();
+    window.print();
+  });
+}
 projectList.addEventListener("click", handleProjectAction);
 resetForm.addEventListener("click", () => {
   form.reset();
   aiStrategyVisible = false;
-  strategyStatus.hidden = true;
-  proposalActions.hidden = true;
-  proposalDeck.hidden = true;
-  proposalDeck.innerHTML = "";
-  aiOutput.innerHTML =
-    "<p class=\"empty-state\">Compila la scheda e genera una prima strategia guidata per l'agente.</p>";
+  if (strategyStatus) strategyStatus.hidden = true;
+  if (proposalActions) proposalActions.hidden = true;
+  if (proposalDeck) {
+    proposalDeck.hidden = true;
+    proposalDeck.innerHTML = "";
+  }
+  if (aiOutput) {
+    aiOutput.innerHTML =
+      "<p class=\"empty-state\">Compila la scheda e genera una prima strategia guidata per l'agente.</p>";
+  }
   handleFormUpdate();
 });
 
