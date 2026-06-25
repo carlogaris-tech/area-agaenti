@@ -527,6 +527,21 @@
               <p class="strategy-status" id="strategyStatus" hidden>
                 Strategia confermata e pronta per diventare proposta commerciale.
               </p>
+
+              <div class="proposal-actions" id="proposalActions" hidden>
+                <button class="ghost-button" type="button" id="generateClientProposal">
+                  Anteprima presentazione cliente
+                </button>
+                <button class="ghost-button" type="button" id="prepareCanvaPresentation">
+                  Prepara presentazione Canva
+                </button>
+                <button class="primary-button" type="button" id="printClientProposal">
+                  Stampa o salva PDF
+                </button>
+              </div>
+
+              <div class="proposal-deck" id="proposalDeck" hidden></div>
+              <div class="canva-brief" id="canvaBrief" hidden></div>
             </div>
           </form>
 
@@ -632,5 +647,21 @@
         </section>
       </section>
     </main>
+
+    <section class="presentation-preview" id="presentationPreview" hidden>
+      <div class="presentation-toolbar">
+        <div>
+          <p class="eyebrow">Presentazione cliente</p>
+          <strong id="presentationTitle">Proposta Officina.Tech</strong>
+        </div>
+        <div class="presentation-controls">
+          <button class="ghost-button" type="button" id="prevSlide">Indietro</button>
+          <span id="slideCounter">1 / 6</span>
+          <button class="ghost-button" type="button" id="nextSlide">Avanti</button>
+          <button class="primary-button" type="button" id="closePresentation">Chiudi</button>
+        </div>
+      </div>
+      <div class="presentation-stage" id="presentationStage"></div>
+    </section>
   </body>
 </html>
