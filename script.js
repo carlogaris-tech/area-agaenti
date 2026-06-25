@@ -15,8 +15,17 @@ const confirmStrategy = document.querySelector("#confirmStrategy");
 const strategyStatus = document.querySelector("#strategyStatus");
 const proposalActions = document.querySelector("#proposalActions");
 const generateClientProposal = document.querySelector("#generateClientProposal");
+const prepareCanvaPresentation = document.querySelector("#prepareCanvaPresentation");
 const printClientProposal = document.querySelector("#printClientProposal");
 const proposalDeck = document.querySelector("#proposalDeck");
+const canvaBrief = document.querySelector("#canvaBrief");
+const presentationPreview = document.querySelector("#presentationPreview");
+const presentationStage = document.querySelector("#presentationStage");
+const presentationTitle = document.querySelector("#presentationTitle");
+const slideCounter = document.querySelector("#slideCounter");
+const prevSlide = document.querySelector("#prevSlide");
+const nextSlide = document.querySelector("#nextSlide");
+const closePresentation = document.querySelector("#closePresentation");
 const passwordGate = document.querySelector("#passwordGate");
 const passwordForm = document.querySelector("#passwordForm");
 const panelPassword = document.querySelector("#panelPassword");
@@ -24,6 +33,8 @@ const passwordError = document.querySelector("#passwordError");
 const methodItems = Array.from(document.querySelectorAll("[data-method]"));
 const teamItems = Array.from(document.querySelectorAll("[data-team]"));
 let aiStrategyVisible = false;
+let presentationSlides = [];
+let activeSlideIndex = 0;
 
 const accessPassword = "strategyhub2026";
 const accessStorageKey = "officina-strategy-hub-access";
@@ -909,11 +920,104 @@ function buildClientProposalHtml() {
   `;
 }
 
-function renderClientProposal() {
+function updatePresentationSlide() {
+  if (!presentationStage || presentationSlides.length === 0) return;
+
+  presentationStage.innerHTML = presentationSlides[activeSlideIndex].outerHTML;
+  slideCounter.textContent = `${activeSlideIndex + 1} / ${presentationSlides.length}`;
+  prevSlide.disabled = activeSlideIndex === 0;
+  nextSlide.disabled = activeSlideIndex === presentationSlides.length - 1;
+}
+
+function openPresentationPreview() {
+  if (!presentationPreview || !presentationStage) return;
+
+  if (!proposalDeck || proposalDeck.children.length === 0) {
+    renderClientProposal(false);
+  }
+
+  presentationSlides = Array.from(proposalDeck.querySelectorAll(".proposal-slide"));
+  activeSlideIndex = 0;
+  presentationTitle.textContent = `Proposta per ${value("company") || "cliente"}`;
+  presentationPreview.hidden = false;
+  document.body.classList.add("presentation-open");
+  updatePresentationSlide();
+}
+
+function closePresentationPreview() {
+  if (!presentationPreview) return;
+
+  presentationPreview.hidden = true;
+  document.body.classList.remove("presentation-open");
+}
+
+function renderClientProposal(openPreview = true) {
   if (!proposalDeck) return;
   if (!value("proposedStrategy")) fillRecommendedStrategy(true);
   proposalDeck.innerHTML = buildClientProposalHtml();
-  proposalDeck.hidden = false;
+  proposalDeck.hidden = openPreview;
+  if (openPreview) openPresentationPreview();
+}
+
+function buildCanvaBriefHtml() {
+  const scores = getScores();
+  const company = value("company") || "Cliente";
+  const strategy = value("proposedStrategy") || buildRecommendedStrategyText();
+  const strategyLines = strategy.split("\n").filter(Boolean);
+  const services = checkedServices();
+  const campaigns = checkedCampaigns();
+  const activeTeam = Array.from(getActiveTeamMembers()).map((team) => teamLabels[team]);
+  const slides = [
+    {
+      title: `Proposta digitale per ${company}`,
+      body: `Obiettivo: ${value("goal")}. Potenziale cliente: ${getTotalScore(scores)}/100.`,
+    },
+    {
+      title: "Scenario digitale",
+      body: `Sito ${scores.web}/100, social ${scores.social}/100, campagne ${scores.campaign}/100. Settore: ${value("sector")}.`,
+    },
+    {
+      title: "Opportunita rilevate",
+      body: strategyLines.slice(2, 5).join(" ") || "Sintesi delle opportunita emerse da sito, social, campagne e dati disponibili.",
+    },
+    {
+      title: "Strategia Officina.Tech",
+      body: strategyLines.slice(5, 10).join(" ") || "Direzione strategica consigliata e modificata dall'agente.",
+    },
+    {
+      title: "Piano operativo",
+      body: [...services, ...campaigns].slice(0, 6).join(", ") || "Audit, strategia, campagne, contenuti e misurazione.",
+    },
+    {
+      title: "Team e prossimi passi",
+      body: `${activeTeam.join(", ") || "Team da definire"}. Prossimo passo: call di allineamento, raccolta accessi e proposta economica.`,
+    },
+  ];
+
+  return `
+    <div>
+      <p class="eyebrow">Canva</p>
+      <h3>Brief presentazione cliente</h3>
+      <p>Contenuti pronti da usare per creare una presentazione grafica in Canva.</p>
+    </div>
+    ${slides
+      .map(
+        (slide, index) => `
+          <article>
+            <strong>Slide ${index + 1}: ${escapeHtml(slide.title)}</strong>
+            <span>${escapeHtml(slide.body)}</span>
+          </article>
+        `
+      )
+      .join("")}
+  `;
+}
+
+function renderCanvaBrief() {
+  if (!canvaBrief) return;
+  if (!value("proposedStrategy")) fillRecommendedStrategy(true);
+  canvaBrief.innerHTML = buildCanvaBriefHtml();
+  canvaBrief.hidden = false;
 }
 
 function renderAiStrategy(forceStrategy = false) {
@@ -1109,14 +1213,45 @@ if (confirmStrategy) {
   });
 }
 if (generateClientProposal) {
-  generateClientProposal.addEventListener("click", renderClientProposal);
+  generateClientProposal.addEventListener("click", () => renderClientProposal(true));
+}
+if (prepareCanvaPresentation) {
+  prepareCanvaPresentation.addEventListener("click", renderCanvaBrief);
 }
 if (printClientProposal) {
   printClientProposal.addEventListener("click", () => {
-    if (proposalDeck?.hidden) renderClientProposal();
+    if (proposalDeck?.hidden) renderClientProposal(false);
     window.print();
   });
 }
+if (prevSlide) {
+  prevSlide.addEventListener("click", () => {
+    activeSlideIndex = Math.max(0, activeSlideIndex - 1);
+    updatePresentationSlide();
+  });
+}
+if (nextSlide) {
+  nextSlide.addEventListener("click", () => {
+    activeSlideIndex = Math.min(presentationSlides.length - 1, activeSlideIndex + 1);
+    updatePresentationSlide();
+  });
+}
+if (closePresentation) {
+  closePresentation.addEventListener("click", closePresentationPreview);
+}
+document.addEventListener("keydown", (event) => {
+  if (!presentationPreview || presentationPreview.hidden) return;
+
+  if (event.key === "Escape") closePresentationPreview();
+  if (event.key === "ArrowLeft") {
+    activeSlideIndex = Math.max(0, activeSlideIndex - 1);
+    updatePresentationSlide();
+  }
+  if (event.key === "ArrowRight") {
+    activeSlideIndex = Math.min(presentationSlides.length - 1, activeSlideIndex + 1);
+    updatePresentationSlide();
+  }
+});
 projectList.addEventListener("click", handleProjectAction);
 resetForm.addEventListener("click", () => {
   form.reset();
@@ -1127,6 +1262,11 @@ resetForm.addEventListener("click", () => {
     proposalDeck.hidden = true;
     proposalDeck.innerHTML = "";
   }
+  if (canvaBrief) {
+    canvaBrief.hidden = true;
+    canvaBrief.innerHTML = "";
+  }
+  closePresentationPreview();
   if (aiOutput) {
     aiOutput.innerHTML =
       "<p class=\"empty-state\">Compila la scheda e genera una prima strategia guidata per l'agente.</p>";
