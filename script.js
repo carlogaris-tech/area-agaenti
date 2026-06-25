@@ -63,6 +63,7 @@ const checkboxNames = [
   "hasWebsite",
   "needsSeo",
   "keywordGap",
+  "positioning",
   "competitorBenchmark",
   "needsMobile",
   "needsTracking",
@@ -86,6 +87,7 @@ const requiredClientFields = [
 
 const serviceMethodMap = {
   "Sito web": ["tech", "strategy"],
+  "Audit SEO": ["seo", "tech", "data-ai"],
   "Audit SEO Semrush": ["seo", "tech", "data-ai"],
   "SEO locale": ["seo", "strategy"],
   "Analisi social": ["social", "data-ai", "creative"],
@@ -209,6 +211,7 @@ function getScores() {
   if (checked("hasWebsite")) web += 12;
   if (checked("needsSeo")) web += 18;
   if (checked("keywordGap")) web += 12;
+  if (checked("positioning")) web += 14;
   if (checked("competitorBenchmark")) web += 12;
   if (checked("needsMobile")) web += 12;
   if (checked("needsTracking")) web += 14;
@@ -291,9 +294,9 @@ function buildRecommendations(scores) {
     items.push(
       "Recuperare la URL del sito per avviare audit Semrush su SEO, keyword, contenuti e competitor."
     );
-  } else if (checked("needsSeo") || scores.web < 55) {
+  } else if (checked("needsSeo") || checked("positioning") || scores.web < 55) {
     items.push(
-      `Preparare per ${company} una mini audit Semrush con priorita SEO, keyword gap e contenuti.`
+      `Preparare per ${company} una mini audit SEO con priorita posizionamento, keyword gap e contenuti.`
     );
   } else {
     items.push(
@@ -310,6 +313,12 @@ function buildRecommendations(scores) {
   if (checked("keywordGap")) {
     items.push(
       "Trasformare il keyword gap in piano contenuti e landing orientate alla domanda reale degli utenti."
+    );
+  }
+
+  if (checked("positioning")) {
+    items.push(
+      "Valutare il posizionamento attuale e definire le keyword prioritarie su cui costruire visibilita organica."
     );
   }
 
@@ -382,7 +391,7 @@ function getActiveMethods() {
     });
   });
 
-  if (checked("needsSeo") || checked("keywordGap") || checked("localSeo")) {
+  if (checked("needsSeo") || checked("keywordGap") || checked("positioning") || checked("localSeo")) {
     activeMethods.add("seo");
     activeMethods.add("data-ai");
   }
@@ -440,6 +449,7 @@ function getActiveTeamMembers() {
     checked("hasWebsite") ||
     checked("needsSeo") ||
     checked("keywordGap") ||
+    checked("positioning") ||
     checked("competitorBenchmark") ||
     checked("needsMobile") ||
     checked("needsTracking") ||
@@ -545,9 +555,9 @@ function buildAiStrategyHtml() {
     );
   }
 
-  if (checked("needsSeo") || checked("keywordGap") || checked("localSeo")) {
+  if (checked("needsSeo") || checked("keywordGap") || checked("positioning") || checked("localSeo")) {
     opportunities.push(
-      "Usare Semrush per trasformare keyword gap, SEO locale e competitor in un piano contenuti misurabile."
+      "Usare dati SEO e Semrush per trasformare posizionamento, keyword gap, SEO locale e competitor in un piano contenuti misurabile."
     );
   }
 
@@ -635,8 +645,8 @@ function buildRecommendedStrategyText() {
     strategicAssets.push("audit sito, UX, performance e tracciamento conversioni");
   }
 
-  if (checked("needsSeo") || checked("keywordGap") || checked("localSeo")) {
-    strategicAssets.push("analisi SEO/Semrush su keyword, competitor e opportunita contenuti");
+  if (checked("needsSeo") || checked("keywordGap") || checked("positioning") || checked("localSeo")) {
+    strategicAssets.push("analisi SEO/Semrush su posizionamento, keyword, competitor e opportunita contenuti");
   }
 
   if (hasUrl("instagram") || hasUrl("facebook") || hasUrl("linkedin")) {
@@ -657,8 +667,8 @@ function buildRecommendedStrategyText() {
 
   operatingPlan.push("1. Audit iniziale dei dati disponibili e definizione delle priorita commerciali.");
 
-  if (checked("needsSeo") || checked("keywordGap") || checked("localSeo")) {
-    operatingPlan.push("2. Mini audit Semrush per individuare keyword, competitor, contenuti mancanti e opportunita SEO locale.");
+  if (checked("needsSeo") || checked("keywordGap") || checked("positioning") || checked("localSeo")) {
+    operatingPlan.push("2. Mini audit SEO/Semrush per individuare posizionamento, keyword, competitor, contenuti mancanti e opportunita SEO locale.");
   } else {
     operatingPlan.push("2. Raccolta dati su sito, presenza organica e punti di attrito nel percorso utente.");
   }
@@ -702,6 +712,103 @@ function buildRecommendedStrategyText() {
   ].join("\n");
 }
 
+function buildGeneratedInsight() {
+  const company = value("company") || "il cliente";
+  const signals = [];
+
+  if (hasUrl("website") || checked("hasWebsite")) {
+    signals.push("presenza web da valutare su UX, SEO, contenuti e conversioni");
+  }
+
+  if (checked("needsSeo") || checked("keywordGap") || checked("positioning") || checked("localSeo")) {
+    signals.push("opportunita SEO/Semrush su posizionamento, keyword, competitor e visibilita organica");
+  }
+
+  if (hasUrl("instagram") || hasUrl("facebook") || hasUrl("linkedin")) {
+    signals.push("canali social da leggere su frequenza, interazioni e continuita editoriale");
+  }
+
+  if (checkedCampaigns().length > 0) {
+    signals.push(`campagne digitali da impostare su ${checkedCampaigns().slice(0, 3).join(", ")}`);
+  }
+
+  if (signals.length === 0) {
+    signals.push("raccolta dati iniziale da completare prima della proposta");
+  }
+
+  return `Per ${company} emerge una prima opportunita di crescita basata su ${signals.join("; ")}. La proposta dovrebbe trasformare questi segnali in priorita misurabili e in un piano commerciale semplice da presentare.`;
+}
+
+function buildGeneratedNarrative() {
+  const company = value("company") || "il brand";
+  const goal = value("goal").toLowerCase();
+  const sector = value("sector").toLowerCase();
+
+  return `${company} deve essere raccontato come un riferimento credibile nel settore ${sector}, collegando il valore del brand all'obiettivo "${goal}". La narrazione dovrebbe unire prova concreta, benefici per il cliente finale e messaggi utili per sito, social e campagne.`;
+}
+
+function getSuggestedAiUse() {
+  if (checked("needsSeo") || checked("keywordGap") || checked("positioning") || checked("competitorBenchmark")) {
+    return "Analisi keyword e competitor";
+  }
+
+  if (checkedCampaigns().length > 0 || hasUrl("instagram") || hasUrl("facebook") || hasUrl("linkedin")) {
+    return "Idee editoriali e campagne";
+  }
+
+  if (checked("contentOpportunity") || value("webNotes")) {
+    return "Audit e analisi contenuti";
+  }
+
+  return "Segmentazione clienti";
+}
+
+function getSuggestedCampaignType() {
+  const goal = value("goal");
+  const objective = value("campaignObjective");
+
+  if (objective === "Prenotazioni o appuntamenti" || goal === "Aumentare prenotazioni") {
+    return "Prenotazioni o appuntamenti";
+  }
+
+  if (objective === "Richieste di contatto" || checked("leadCampaigns") || goal === "Portare nuovi contatti") {
+    return "Lead generation";
+  }
+
+  if (objective === "Notorieta e copertura locale" || goal === "Migliorare reputazione online") {
+    return "Reputazione e community";
+  }
+
+  if (goal === "Preparare una campagna stagionale") {
+    return "Lancio prodotto o evento";
+  }
+
+  return "Fidelizzazione";
+}
+
+function fillGuidedStrategyFields(force = false) {
+  const dataInsight = form.elements.dataInsight;
+  const brandNarrative = form.elements.brandNarrative;
+  const aiUse = form.elements.aiUse;
+  const campaignType = form.elements.campaignType;
+
+  if (dataInsight && (force || !dataInsight.value.trim())) {
+    dataInsight.value = buildGeneratedInsight();
+  }
+
+  if (brandNarrative && (force || !brandNarrative.value.trim())) {
+    brandNarrative.value = buildGeneratedNarrative();
+  }
+
+  if (aiUse && (force || aiUse.value === "Da valutare")) {
+    aiUse.value = getSuggestedAiUse();
+  }
+
+  if (campaignType && (force || campaignType.value === "Da definire")) {
+    campaignType.value = getSuggestedCampaignType();
+  }
+}
+
 function fillRecommendedStrategy(force = false) {
   const proposedStrategy = form.elements.proposedStrategy;
   if (!proposedStrategy) return;
@@ -712,15 +819,16 @@ function fillRecommendedStrategy(force = false) {
   strategyStatus.hidden = true;
 }
 
-function renderAiStrategy() {
+function renderAiStrategy(forceStrategy = false) {
   aiStrategyVisible = true;
+  if (forceStrategy) fillGuidedStrategyFields(true);
   aiOutput.innerHTML = buildAiStrategyHtml();
-  fillRecommendedStrategy(false);
+  fillRecommendedStrategy(forceStrategy);
 }
 
 function handleFormUpdate() {
   updateInsights();
-  if (aiStrategyVisible) renderAiStrategy();
+  if (aiStrategyVisible) renderAiStrategy(false);
   if (document.activeElement === form.elements.proposedStrategy) {
     strategyStatus.hidden = true;
   }
@@ -883,8 +991,12 @@ function handleProjectAction(event) {
 form.addEventListener("input", handleFormUpdate);
 form.addEventListener("change", handleFormUpdate);
 saveProject.addEventListener("click", saveCurrentProject);
-generateAiStrategy.addEventListener("click", renderAiStrategy);
-generateRecommendedStrategy.addEventListener("click", () => fillRecommendedStrategy(true));
+generateAiStrategy.addEventListener("click", () => renderAiStrategy(true));
+generateRecommendedStrategy.addEventListener("click", () => {
+  fillGuidedStrategyFields(true);
+  fillRecommendedStrategy(true);
+  updateInsights();
+});
 confirmStrategy.addEventListener("click", () => {
   if (!value("proposedStrategy")) {
     fillRecommendedStrategy(true);
