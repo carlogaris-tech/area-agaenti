@@ -13,6 +13,10 @@ const aiOutput = document.querySelector("#aiOutput");
 const generateRecommendedStrategy = document.querySelector("#generateRecommendedStrategy");
 const confirmStrategy = document.querySelector("#confirmStrategy");
 const strategyStatus = document.querySelector("#strategyStatus");
+const proposalActions = document.querySelector("#proposalActions");
+const generateClientProposal = document.querySelector("#generateClientProposal");
+const printClientProposal = document.querySelector("#printClientProposal");
+const proposalDeck = document.querySelector("#proposalDeck");
 const passwordGate = document.querySelector("#passwordGate");
 const passwordForm = document.querySelector("#passwordForm");
 const panelPassword = document.querySelector("#panelPassword");
@@ -819,6 +823,98 @@ function fillRecommendedStrategy(force = false) {
   strategyStatus.hidden = true;
 }
 
+function getProposalList(items, fallback) {
+  const list = items.length > 0 ? items : fallback;
+  return `<ul>${list.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
+}
+
+function buildClientProposalHtml() {
+  const scores = getScores();
+  const company = value("company") || "Cliente";
+  const services = checkedServices();
+  const campaigns = checkedCampaigns();
+  const activeTeam = Array.from(getActiveTeamMembers()).map((team) => teamLabels[team]);
+  const strategy = value("proposedStrategy") || buildRecommendedStrategyText();
+  const strategyExcerpt = strategy.split("\n").filter(Boolean).slice(0, 7).join(" ");
+  const opportunities = [];
+
+  if (scores.web >= 45) opportunities.push("Migliorare sito, UX, contenuti e tracciamento conversioni.");
+  if (scores.social >= 35) opportunities.push("Rendere piu misurabile la presenza social e il calendario editoriale.");
+  if (scores.campaign >= 35) opportunities.push("Attivare campagne digitali con budget, obiettivi e KPI chiari.");
+  if (checked("positioning")) opportunities.push("Lavorare sul posizionamento organico e sulle keyword prioritarie.");
+  if (checked("competitorBenchmark")) opportunities.push("Usare benchmark competitor per individuare spazi di crescita.");
+
+  return `
+    <article class="proposal-slide cover">
+      <div>
+        <p class="eyebrow">Proposta cliente</p>
+        <h3>${escapeHtml(company)}</h3>
+        <p>Strategia digitale preparata da Officina.Tech Strategy Hub.</p>
+      </div>
+      <div class="proposal-meta">
+        <span>Potenziale ${getTotalScore(scores)}/100</span>
+        <span>${escapeHtml(value("goal"))}</span>
+        <span>${escapeHtml(value("priority"))}</span>
+      </div>
+    </article>
+    <article class="proposal-slide">
+      <div>
+        <p class="eyebrow">Scenario</p>
+        <h3>Sito, social e campagne</h3>
+      </div>
+      ${getProposalList([
+        `Sito: ${scores.web}/100`,
+        `Social: ${scores.social}/100`,
+        `Campagne: ${scores.campaign}/100`,
+        `Settore: ${value("sector")}`,
+        `Area: ${value("province") || value("campaignArea") || "da definire"}`,
+      ], [])}
+    </article>
+    <article class="proposal-slide">
+      <div>
+        <p class="eyebrow">Opportunita</p>
+        <h3>Dove possiamo creare valore</h3>
+      </div>
+      ${getProposalList(opportunities, [
+        "Completare la raccolta dati per definire priorita e proposta.",
+        "Collegare analisi, contenuti e campagne a obiettivi misurabili.",
+      ])}
+    </article>
+    <article class="proposal-slide">
+      <div>
+        <p class="eyebrow">Strategia</p>
+        <h3>Direzione consigliata</h3>
+      </div>
+      <p>${escapeHtml(strategyExcerpt)}</p>
+    </article>
+    <article class="proposal-slide">
+      <div>
+        <p class="eyebrow">Piano operativo</p>
+        <h3>Servizi e canali da attivare</h3>
+      </div>
+      ${getProposalList([...services, ...campaigns], [
+        "Audit iniziale",
+        "Strategia digitale",
+        "Piano operativo misurabile",
+      ])}
+    </article>
+    <article class="proposal-slide">
+      <div>
+        <p class="eyebrow">Team e prossimi passi</p>
+        <h3>Come partire</h3>
+      </div>
+      ${getProposalList(activeTeam, ["Program manager", "Team specialistico da definire"])}
+      <p><strong>Prossimo passo:</strong> call di allineamento, raccolta accessi e definizione della proposta economica.</p>
+    </article>
+  `;
+}
+
+function renderClientProposal() {
+  if (!value("proposedStrategy")) fillRecommendedStrategy(true);
+  proposalDeck.innerHTML = buildClientProposalHtml();
+  proposalDeck.hidden = false;
+}
+
 function renderAiStrategy(forceStrategy = false) {
   aiStrategyVisible = true;
   if (forceStrategy) fillGuidedStrategyFields(true);
@@ -831,6 +927,7 @@ function handleFormUpdate() {
   if (aiStrategyVisible) renderAiStrategy(false);
   if (document.activeElement === form.elements.proposedStrategy) {
     strategyStatus.hidden = true;
+    proposalActions.hidden = true;
   }
 }
 
@@ -1002,11 +1099,23 @@ confirmStrategy.addEventListener("click", () => {
     fillRecommendedStrategy(true);
   }
   strategyStatus.hidden = false;
+  proposalActions.hidden = false;
+});
+generateClientProposal.addEventListener("click", renderClientProposal);
+printClientProposal.addEventListener("click", () => {
+  if (proposalDeck.hidden) renderClientProposal();
+  window.print();
 });
 projectList.addEventListener("click", handleProjectAction);
 resetForm.addEventListener("click", () => {
   form.reset();
+  aiStrategyVisible = false;
   strategyStatus.hidden = true;
+  proposalActions.hidden = true;
+  proposalDeck.hidden = true;
+  proposalDeck.innerHTML = "";
+  aiOutput.innerHTML =
+    "<p class=\"empty-state\">Compila la scheda e genera una prima strategia guidata per l'agente.</p>";
   handleFormUpdate();
 });
 
