@@ -40,6 +40,10 @@ body.is-locked {
   overflow: hidden;
 }
 
+body.presentation-open {
+  overflow: hidden;
+}
+
 body.is-locked .app-shell {
   max-height: 100vh;
   overflow: hidden;
@@ -461,6 +465,12 @@ textarea:focus {
   background: linear-gradient(135deg, rgba(255, 107, 74, 0.16), rgba(255, 212, 59, 0.09));
 }
 
+.analysis-callout.campaign {
+  border-color: rgba(157, 124, 255, 0.3);
+  border-left-color: var(--violet);
+  background: linear-gradient(135deg, rgba(157, 124, 255, 0.16), rgba(32, 214, 197, 0.1));
+}
+
 .analysis-callout strong {
   display: block;
   color: #ffffff;
@@ -723,6 +733,242 @@ ol li + li {
   min-height: 96px;
 }
 
+.strategy-proposal-box {
+  display: grid;
+  gap: 18px;
+  margin-top: 6px;
+  padding: 22px;
+  border: 1px solid rgba(255, 212, 59, 0.32);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 96% 0%, rgba(255, 212, 59, 0.16), transparent 42%),
+    linear-gradient(135deg, rgba(157, 124, 255, 0.14), rgba(32, 214, 197, 0.09)),
+    rgba(17, 29, 45, 0.9);
+}
+
+.strategy-proposal-box p {
+  max-width: 720px;
+  margin: 10px 0 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.strategy-proposal-box textarea {
+  min-height: 220px;
+  border-color: rgba(255, 212, 59, 0.22);
+  background: rgba(7, 17, 31, 0.82);
+}
+
+.strategy-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px;
+}
+
+.strategy-status {
+  margin: 0;
+  padding: 11px 12px;
+  border: 1px solid rgba(143, 212, 0, 0.38);
+  border-radius: 8px;
+  color: #f5ffe1;
+  background: rgba(143, 212, 0, 0.13);
+}
+
+.strategy-status[hidden] {
+  display: none;
+}
+
+.proposal-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.proposal-actions[hidden],
+.proposal-deck[hidden],
+.canva-brief[hidden] {
+  display: none;
+}
+
+.canva-brief {
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+  border: 1px solid rgba(157, 124, 255, 0.28);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(157, 124, 255, 0.2), transparent 40%),
+    rgba(7, 17, 31, 0.64);
+}
+
+.canva-brief h3 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 1.08rem;
+}
+
+.canva-brief article {
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.055);
+}
+
+.canva-brief strong,
+.canva-brief span {
+  display: block;
+}
+
+.canva-brief strong {
+  color: #ffffff;
+}
+
+.canva-brief span,
+.canva-brief p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.proposal-deck {
+  display: grid;
+  gap: 14px;
+}
+
+.proposal-slide {
+  min-height: 210px;
+  display: grid;
+  align-content: space-between;
+  gap: 18px;
+  padding: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(255, 212, 59, 0.16), transparent 34%),
+    linear-gradient(135deg, rgba(7, 17, 31, 0.92), rgba(17, 29, 45, 0.92));
+}
+
+.proposal-slide.cover {
+  min-height: 260px;
+  background:
+    radial-gradient(circle at 88% 8%, rgba(143, 212, 0, 0.22), transparent 34%),
+    radial-gradient(circle at 8% 90%, rgba(32, 214, 197, 0.18), transparent 32%),
+    linear-gradient(135deg, rgba(7, 17, 31, 0.98), rgba(17, 29, 45, 0.96));
+}
+
+.proposal-slide h3 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 1.28rem;
+  line-height: 1.18;
+}
+
+.proposal-slide p,
+.proposal-slide li {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.proposal-slide p,
+.proposal-slide ul {
+  margin: 0;
+}
+
+.proposal-slide ul {
+  padding-left: 18px;
+}
+
+.proposal-slide strong {
+  color: #ffffff;
+}
+
+.presentation-preview {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 18px;
+  padding: 20px;
+  background:
+    radial-gradient(circle at 82% 12%, rgba(255, 212, 59, 0.17), transparent 26vw),
+    radial-gradient(circle at 12% 88%, rgba(32, 214, 197, 0.18), transparent 28vw),
+    rgba(7, 17, 31, 0.97);
+}
+
+.presentation-preview[hidden] {
+  display: none;
+}
+
+.presentation-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 18px;
+  padding: 14px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  background: rgba(17, 29, 45, 0.82);
+  box-shadow: var(--shadow);
+}
+
+.presentation-toolbar strong {
+  display: block;
+  color: #ffffff;
+  font-size: 1.08rem;
+}
+
+.presentation-controls {
+  display: grid;
+  grid-template-columns: auto minmax(54px, auto) auto auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.presentation-controls span {
+  color: var(--muted);
+  font-weight: 800;
+  text-align: center;
+}
+
+.presentation-stage {
+  min-height: 0;
+  display: grid;
+  place-items: center;
+}
+
+.presentation-stage .proposal-slide {
+  width: min(1120px, 100%);
+  min-height: min(650px, calc(100vh - 148px));
+  padding: clamp(28px, 5vw, 58px);
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.42);
+}
+
+.presentation-stage .proposal-slide h3 {
+  font-size: clamp(2rem, 5vw, 4rem);
+  max-width: 860px;
+}
+
+.presentation-stage .proposal-slide p,
+.presentation-stage .proposal-slide li {
+  font-size: clamp(1rem, 1.5vw, 1.24rem);
+}
+
+.proposal-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.proposal-meta span {
+  padding: 7px 10px;
+  border-radius: 999px;
+  color: #07111f;
+  background: linear-gradient(135deg, var(--amber), var(--lime));
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
 .method-list {
   display: grid;
   gap: 9px;
@@ -881,6 +1127,10 @@ ol li + li {
   .check-grid,
   .offer-box,
   .social-row,
+  .strategy-actions,
+  .proposal-actions,
+  .presentation-toolbar,
+  .presentation-controls,
   .sidebar nav {
     grid-template-columns: 1fr;
   }
@@ -900,5 +1150,50 @@ ol li + li {
   .ai-panel,
   .pipeline-panel {
     padding: 18px;
+  }
+}
+
+@media print {
+  body {
+    color: #111827;
+    background: #ffffff;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  .proposal-deck,
+  .proposal-deck * {
+    visibility: visible;
+  }
+
+  .proposal-deck {
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 100%;
+    display: block;
+    padding: 0;
+    background: #ffffff;
+  }
+
+  .proposal-slide {
+    min-height: 95vh;
+    page-break-after: always;
+    border: 0;
+    border-radius: 0;
+    color: #111827;
+    background: #ffffff;
+    box-shadow: none;
+  }
+
+  .proposal-slide h3,
+  .proposal-slide strong {
+    color: #111827;
+  }
+
+  .proposal-slide p,
+  .proposal-slide li {
+    color: #374151;
   }
 }
