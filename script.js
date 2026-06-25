@@ -3,13 +3,16 @@ const scoreValue = document.querySelector("#scoreValue");
 const scoreRing = document.querySelector(".score-ring");
 const webScoreBar = document.querySelector("#webScore");
 const socialScoreBar = document.querySelector("#socialScore");
-const strategyScoreBar = document.querySelector("#strategyScore");
+const campaignScoreBar = document.querySelector("#campaignScore");
 const recommendations = document.querySelector("#recommendations");
 const projectList = document.querySelector("#projectList");
 const saveProject = document.querySelector("#saveProject");
 const resetForm = document.querySelector("#resetForm");
 const generateAiStrategy = document.querySelector("#generateAiStrategy");
 const aiOutput = document.querySelector("#aiOutput");
+const generateRecommendedStrategy = document.querySelector("#generateRecommendedStrategy");
+const confirmStrategy = document.querySelector("#confirmStrategy");
+const strategyStatus = document.querySelector("#strategyStatus");
 const passwordGate = document.querySelector("#passwordGate");
 const passwordForm = document.querySelector("#passwordForm");
 const panelPassword = document.querySelector("#panelPassword");
@@ -33,6 +36,10 @@ const fieldNames = [
   "seoKeywords",
   "competitors",
   "webNotes",
+  "campaignObjective",
+  "campaignBudget",
+  "campaignArea",
+  "campaignNotes",
   "instagram",
   "instagramFollowers",
   "instagramPosts",
@@ -50,6 +57,7 @@ const fieldNames = [
   "brandNarrative",
   "aiUse",
   "campaignType",
+  "proposedStrategy",
 ];
 const checkboxNames = [
   "hasWebsite",
@@ -60,6 +68,14 @@ const checkboxNames = [
   "needsTracking",
   "localSeo",
   "contentOpportunity",
+  "searchMarketing",
+  "socialMarketing",
+  "cpcMarketing",
+  "remarketing",
+  "leadCampaigns",
+  "landingCampaigns",
+  "creativeCampaigns",
+  "conversionTracking",
 ];
 const requiredClientFields = [
   ["company", "Nome azienda"],
@@ -85,6 +101,16 @@ const teamLabels = {
   "social-media-manager": "Social media manager",
   "program-manager": "Program manager",
   "programmatic-adv-manager": "Programmatic ADV manager",
+};
+const campaignLabels = {
+  searchMarketing: "marketing sui motori di ricerca",
+  socialMarketing: "marketing social",
+  cpcMarketing: "campagne CPC",
+  remarketing: "remarketing",
+  leadCampaigns: "lead generation",
+  landingCampaigns: "landing dedicate",
+  creativeCampaigns: "creativita ADV",
+  conversionTracking: "conversion tracking",
 };
 
 function unlockPanel(storeAccess = true) {
@@ -136,6 +162,12 @@ function checkedServices() {
   );
 }
 
+function checkedCampaigns() {
+  return Object.entries(campaignLabels)
+    .filter(([name]) => checked(name))
+    .map(([, label]) => label);
+}
+
 function escapeHtml(text) {
   const div = document.createElement("div");
   div.textContent = text;
@@ -170,6 +202,7 @@ function clamp(score) {
 function getScores() {
   let web = 12;
   let social = 10;
+  let campaign = 8;
   let strategy = 18;
 
   if (hasUrl("website")) web += 22;
@@ -195,10 +228,28 @@ function getScores() {
     numberValue("instagramPosts") +
     numberValue("facebookEngagement") +
     numberValue("linkedinPosts");
+  const campaigns = checkedCampaigns();
 
   social += socialLinks * 16;
   social += Math.min(22, Math.floor(followers / 250));
   social += Math.min(20, activity * 3);
+  if (checked("socialMarketing")) social += 10;
+  if (checked("creativeCampaigns")) social += 6;
+
+  campaign += campaigns.length * 10;
+  if (checked("searchMarketing")) campaign += 12;
+  if (checked("socialMarketing")) campaign += 10;
+  if (checked("cpcMarketing")) campaign += 12;
+  if (checked("remarketing")) campaign += 8;
+  if (checked("leadCampaigns")) campaign += 10;
+  if (checked("landingCampaigns")) campaign += 8;
+  if (checked("creativeCampaigns")) campaign += 6;
+  if (checked("conversionTracking")) campaign += 12;
+  if (value("campaignObjective") !== "Da definire") campaign += 10;
+  if (value("campaignBudget") !== "Da definire") campaign += 10;
+  if (value("campaignArea")) campaign += 6;
+  if (value("campaignNotes").length > 20) campaign += 10;
+  if (value("campaignType") !== "Da definire") campaign += 6;
 
   if (value("company")) strategy += 10;
   if (value("contact")) strategy += 8;
@@ -212,18 +263,29 @@ function getScores() {
   if (value("brandNarrative").length > 20) strategy += 10;
   if (value("aiUse") !== "Da valutare") strategy += 8;
   if (value("campaignType") !== "Da definire") strategy += 8;
+  strategy += campaigns.length * 5;
+  if (value("campaignObjective") !== "Da definire") strategy += 8;
+  if (value("campaignBudget") !== "Da definire") strategy += 8;
+  if (value("campaignArea")) strategy += 5;
+  if (value("campaignNotes").length > 20) strategy += 8;
 
   return {
     web: clamp(web),
     social: clamp(social),
+    campaign: clamp(campaign),
     strategy: clamp(strategy),
   };
+}
+
+function getTotalScore(scores) {
+  return clamp((scores.web + scores.social + scores.campaign) / 3);
 }
 
 function buildRecommendations(scores) {
   const items = [];
   const company = value("company") || "il cliente";
   const services = checkedServices();
+  const campaigns = checkedCampaigns();
 
   if (!hasUrl("website")) {
     items.push(
@@ -261,6 +323,18 @@ function buildRecommendations(scores) {
     items.push(
       "Analizzare i contenuti social piu efficaci e trasformarli in campagna o calendario commerciale."
     );
+  }
+
+  if (campaigns.length > 0) {
+    items.push(
+      `Impostare una lettura campagne su ${campaigns.slice(0, 3).join(", ")} con obiettivo, pubblico, budget e misurazione.`
+    );
+  } else {
+    items.push("Valutare se inserire campagne digitali, CPC o remarketing per accelerare la raccolta contatti.");
+  }
+
+  if (checked("landingCampaigns") || checked("conversionTracking")) {
+    items.push("Collegare campagne, landing e conversion tracking per misurare richieste reali e costo contatto.");
   }
 
   if (services.length === 0) {
@@ -328,6 +402,21 @@ function getActiveMethods() {
     activeMethods.add("strategy");
   }
 
+  if (
+    checkedCampaigns().length > 0 ||
+    value("campaignObjective") !== "Da definire" ||
+    value("campaignBudget") !== "Da definire"
+  ) {
+    activeMethods.add("creative");
+    activeMethods.add("data-ai");
+    activeMethods.add("strategy");
+  }
+
+  if (checked("searchMarketing") || checked("cpcMarketing")) {
+    activeMethods.add("seo");
+    activeMethods.add("tech");
+  }
+
   if (value("brandNarrative").length > 0) {
     activeMethods.add("narrative");
   }
@@ -371,6 +460,12 @@ function getActiveTeamMembers() {
     numberValue("facebookEngagement") > 0 ||
     numberValue("linkedinFollowers") > 0 ||
     numberValue("linkedinPosts") > 0;
+  const hasCampaignSignals =
+    checkedCampaigns().length > 0 ||
+    value("campaignObjective") !== "Da definire" ||
+    value("campaignBudget") !== "Da definire" ||
+    Boolean(value("campaignArea")) ||
+    Boolean(value("campaignNotes"));
 
   if (hasSiteSignals) {
     activeTeam.add("web-design");
@@ -383,6 +478,7 @@ function getActiveTeamMembers() {
   }
 
   if (
+    hasCampaignSignals ||
     checked("needsTracking") ||
     value("campaignType") === "Lead generation" ||
     checkedServices().includes("Campagne Ads")
@@ -425,11 +521,12 @@ function buildMemoryInsight() {
 
 function buildAiStrategyHtml() {
   const scores = getScores();
-  const total = clamp((scores.web + scores.social + scores.strategy) / 3);
+  const total = getTotalScore(scores);
   const company = value("company") || "questo cliente";
   const sector = value("sector").toLowerCase();
   const province = value("province");
   const services = checkedServices();
+  const campaigns = checkedCampaigns();
   const activeTeam = Array.from(getActiveTeamMembers()).map((team) => teamLabels[team]);
   const activeMethods = Array.from(getActiveMethods()).map((method) => {
     const item = methodItems.find((element) => element.dataset.method === method);
@@ -467,6 +564,12 @@ function buildAiStrategyHtml() {
   if (value("budget") === "Da definire") {
     opportunities.push(
       "Portare il cliente verso una proposta modulare: audit iniziale, priorita operative e secondo step di crescita."
+    );
+  }
+
+  if (campaigns.length > 0) {
+    opportunities.push(
+      `Attivare una strategia media su ${campaigns.slice(0, 4).join(", ")} con messaggi, pubblico e tracking coerenti.`
     );
   }
 
@@ -516,25 +619,122 @@ function buildAiStrategyHtml() {
   `;
 }
 
+function buildRecommendedStrategyText() {
+  const scores = getScores();
+  const total = getTotalScore(scores);
+  const company = value("company") || "il cliente";
+  const sector = value("sector").toLowerCase();
+  const area = value("province") || value("campaignArea");
+  const services = checkedServices();
+  const campaigns = checkedCampaigns();
+  const activeTeam = Array.from(getActiveTeamMembers()).map((team) => teamLabels[team]);
+  const strategicAssets = [];
+  const operatingPlan = [];
+
+  if (hasUrl("website") || checked("hasWebsite")) {
+    strategicAssets.push("audit sito, UX, performance e tracciamento conversioni");
+  }
+
+  if (checked("needsSeo") || checked("keywordGap") || checked("localSeo")) {
+    strategicAssets.push("analisi SEO/Semrush su keyword, competitor e opportunita contenuti");
+  }
+
+  if (hasUrl("instagram") || hasUrl("facebook") || hasUrl("linkedin")) {
+    strategicAssets.push("analisi social su frequenza, follower, interazioni e rubriche editoriali");
+  }
+
+  if (campaigns.length > 0) {
+    strategicAssets.push(`piano campagne digitali su ${campaigns.join(", ")}`);
+  }
+
+  if (value("dataInsight")) {
+    strategicAssets.push(`insight emerso: ${value("dataInsight")}`);
+  }
+
+  if (value("brandNarrative")) {
+    strategicAssets.push(`narrazione da valorizzare: ${value("brandNarrative")}`);
+  }
+
+  operatingPlan.push("1. Audit iniziale dei dati disponibili e definizione delle priorita commerciali.");
+
+  if (checked("needsSeo") || checked("keywordGap") || checked("localSeo")) {
+    operatingPlan.push("2. Mini audit Semrush per individuare keyword, competitor, contenuti mancanti e opportunita SEO locale.");
+  } else {
+    operatingPlan.push("2. Raccolta dati su sito, presenza organica e punti di attrito nel percorso utente.");
+  }
+
+  if (campaigns.length > 0) {
+    operatingPlan.push(
+      `3. Piano media con focus ${value("campaignObjective").toLowerCase()} e budget ${value("campaignBudget").toLowerCase()}, partendo da ${campaigns.slice(0, 3).join(", ")}.`
+    );
+  } else {
+    operatingPlan.push("3. Valutazione di campagne digitali e CPC solo dopo aver chiarito obiettivo, pubblico e budget media.");
+  }
+
+  operatingPlan.push("4. Definizione di messaggio, landing o contenuti necessari per trasformare traffico e interesse in contatti.");
+  operatingPlan.push("5. Misurazione dei risultati con tracking, report e ottimizzazione progressiva.");
+
+  return [
+    `Strategia consigliata per ${company}`,
+    "",
+    `Il cliente opera nel settore ${sector} ${area ? `e lavora sull'area ${area}` : "con area geografica da definire"}. Il potenziale stimato e ${total}/100, con obiettivo principale: ${value("goal")}.`,
+    "",
+    "Lettura strategica",
+    strategicAssets.length > 0
+      ? `La proposta dovrebbe partire da ${strategicAssets.join("; ")}.`
+      : "La proposta dovrebbe partire da una raccolta dati piu completa su sito, social, campagne e obiettivi commerciali.",
+    "",
+    "Servizi Officina.Tech da proporre",
+    services.length > 0
+      ? services.map((service) => `- ${service}`).join("\n")
+      : "- Audit iniziale\n- Strategia digitale\n- Piano operativo misurabile",
+    "",
+    "Piano operativo",
+    operatingPlan.join("\n"),
+    "",
+    "Team da coinvolgere",
+    activeTeam.length > 0
+      ? activeTeam.map((member) => `- ${member}`).join("\n")
+      : "- Program manager\n- Team specialistico da definire dopo la raccolta dati",
+    "",
+    "Prossimo passo consigliato",
+    "Preparare una proposta breve con audit iniziale, priorita operative, canali da attivare, budget indicativo e criteri di misurazione.",
+  ].join("\n");
+}
+
+function fillRecommendedStrategy(force = false) {
+  const proposedStrategy = form.elements.proposedStrategy;
+  if (!proposedStrategy) return;
+
+  if (!force && proposedStrategy.value.trim()) return;
+
+  proposedStrategy.value = buildRecommendedStrategyText();
+  strategyStatus.hidden = true;
+}
+
 function renderAiStrategy() {
   aiStrategyVisible = true;
   aiOutput.innerHTML = buildAiStrategyHtml();
+  fillRecommendedStrategy(false);
 }
 
 function handleFormUpdate() {
   updateInsights();
   if (aiStrategyVisible) renderAiStrategy();
+  if (document.activeElement === form.elements.proposedStrategy) {
+    strategyStatus.hidden = true;
+  }
 }
 
 function updateInsights() {
   const scores = getScores();
-  const total = clamp((scores.web + scores.social + scores.strategy) / 3);
+  const total = getTotalScore(scores);
 
   scoreValue.textContent = total;
   scoreRing.style.setProperty("--score", total);
   webScoreBar.value = scores.web;
   socialScoreBar.value = scores.social;
-  strategyScoreBar.value = scores.strategy;
+  campaignScoreBar.value = scores.campaign;
 
   recommendations.innerHTML = buildRecommendations(scores)
     .map((item) => `<li>${escapeHtml(item)}</li>`)
@@ -637,7 +837,7 @@ function saveCurrentProject() {
   }
 
   const scores = getScores();
-  const total = clamp((scores.web + scores.social + scores.strategy) / 3);
+  const total = getTotalScore(scores);
   const company = value("company") || "Cliente senza nome";
   const projects = getProjects();
   const projectData = collectFormData();
@@ -684,9 +884,17 @@ form.addEventListener("input", handleFormUpdate);
 form.addEventListener("change", handleFormUpdate);
 saveProject.addEventListener("click", saveCurrentProject);
 generateAiStrategy.addEventListener("click", renderAiStrategy);
+generateRecommendedStrategy.addEventListener("click", () => fillRecommendedStrategy(true));
+confirmStrategy.addEventListener("click", () => {
+  if (!value("proposedStrategy")) {
+    fillRecommendedStrategy(true);
+  }
+  strategyStatus.hidden = false;
+});
 projectList.addEventListener("click", handleProjectAction);
 resetForm.addEventListener("click", () => {
   form.reset();
+  strategyStatus.hidden = true;
   handleFormUpdate();
 });
 
