@@ -1,4 +1,6 @@
+const APP_VERSION = "1.05";
 const form = document.querySelector("#clientForm");
+const panelVersion = document.querySelector("#panelVersion");
 const scoreValue = document.querySelector("#scoreValue");
 const scoreRing = document.querySelector(".score-ring");
 const webScoreBar = document.querySelector("#webScore");
@@ -1232,6 +1234,7 @@ resetForm.addEventListener("click", () => {
   handleFormUpdate();
 });
 
+if (panelVersion) panelVersion.textContent = `v${APP_VERSION}`;
 initPasswordGate();
 updateInsights();
 renderProjects();
