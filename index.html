@@ -234,6 +234,92 @@
             </label>
 
             <div class="panel-heading compact">
+              <p class="eyebrow">Campagne digitali</p>
+              <h2>Advertising, motori di ricerca e acquisizione clienti</h2>
+            </div>
+
+            <div class="analysis-callout campaign">
+              <strong>Strategia media e performance</strong>
+              <p>
+                Valutiamo social advertising, marketing sui motori di ricerca,
+                campagne CPC, remarketing, landing e tracciamento conversioni
+                per capire dove attivare budget e messaggi commerciali.
+              </p>
+            </div>
+
+            <div class="check-grid">
+              <label>
+                <input name="searchMarketing" type="checkbox">
+                Marketing motori di ricerca
+              </label>
+              <label>
+                <input name="socialMarketing" type="checkbox">
+                Marketing social
+              </label>
+              <label>
+                <input name="cpcMarketing" type="checkbox">
+                Campagne CPC
+              </label>
+              <label>
+                <input name="remarketing" type="checkbox">
+                Remarketing
+              </label>
+              <label>
+                <input name="leadCampaigns" type="checkbox">
+                Lead generation
+              </label>
+              <label>
+                <input name="landingCampaigns" type="checkbox">
+                Landing dedicate
+              </label>
+              <label>
+                <input name="creativeCampaigns" type="checkbox">
+                Creativita ADV
+              </label>
+              <label>
+                <input name="conversionTracking" type="checkbox">
+                Conversion tracking
+              </label>
+            </div>
+
+            <div class="field-grid three">
+              <label>
+                Obiettivo campagne
+                <select name="campaignObjective">
+                  <option>Da definire</option>
+                  <option>Richieste di contatto</option>
+                  <option>Prenotazioni o appuntamenti</option>
+                  <option>Traffico qualificato al sito</option>
+                  <option>Vendita prodotti o servizi</option>
+                  <option>Notorieta e copertura locale</option>
+                </select>
+              </label>
+              <label>
+                Budget media indicativo
+                <select name="campaignBudget">
+                  <option>Da definire</option>
+                  <option>Fino a 500 euro/mese</option>
+                  <option>500 - 1.500 euro/mese</option>
+                  <option>1.500 - 3.000 euro/mese</option>
+                  <option>Oltre 3.000 euro/mese</option>
+                </select>
+              </label>
+              <label>
+                Area geografica campagne
+                <input name="campaignArea" type="text" placeholder="Es. Torino e provincia">
+              </label>
+            </div>
+
+            <label>
+              Note campagne digitali
+              <textarea
+                name="campaignNotes"
+                rows="3"
+                placeholder="Canali da presidiare, offerte da spingere, pubblico, periodo, promozioni, criticita o campagne gia attive."
+              ></textarea>
+            </label>
+
+            <div class="panel-heading compact">
               <p class="eyebrow">Analisi social</p>
               <h2>Canali, frequenza e interazioni</h2>
             </div>
@@ -405,6 +491,39 @@
                 </label>
               </div>
             </div>
+
+            <div class="strategy-proposal-box">
+              <div>
+                <p class="eyebrow">Strategia consigliata</p>
+                <h2>Proposta AI modificabile dall'agente</h2>
+                <p>
+                  Genera una strategia partendo dai dati compilati, dalle skill
+                  Officina.Tech e dai servizi selezionati. L'agente puo
+                  correggerla prima di confermarla come proposta.
+                </p>
+              </div>
+
+              <label>
+                Strategia da proporre
+                <textarea
+                  name="proposedStrategy"
+                  rows="8"
+                  placeholder="La strategia consigliata comparira qui dopo la generazione AI."
+                ></textarea>
+              </label>
+
+              <div class="strategy-actions">
+                <button class="ghost-button" type="button" id="generateRecommendedStrategy">
+                  Genera strategia consigliata
+                </button>
+                <button class="primary-button" type="button" id="confirmStrategy">
+                  Conferma strategia
+                </button>
+              </div>
+              <p class="strategy-status" id="strategyStatus" hidden>
+                Strategia confermata e pronta per diventare proposta commerciale.
+              </p>
+            </div>
           </form>
 
           <aside class="insight-column">
@@ -429,8 +548,8 @@
                   <progress id="socialScore" max="100" value="40"></progress>
                 </div>
                 <div>
-                  <span>Strategia</span>
-                  <progress id="strategyScore" max="100" value="50"></progress>
+                  <span>Campagne</span>
+                  <progress id="campaignScore" max="100" value="25"></progress>
                 </div>
               </div>
             </section>
