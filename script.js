@@ -1,4 +1,4 @@
-const APP_VERSION = "1.05";
+const APP_VERSION = "1.07";
 const form = document.querySelector("#clientForm");
 const panelVersion = document.querySelector("#panelVersion");
 const scoreValue = document.querySelector("#scoreValue");
@@ -41,9 +41,6 @@ const accessStorageKey = "officina-strategy-hub-access";
 const storageKey = "officina-area-agenti-projects";
 const fieldNames = [
   "company",
-  "contact",
-  "email",
-  "phone",
   "sector",
   "province",
   "website",
@@ -95,9 +92,7 @@ const checkboxNames = [
 ];
 const requiredClientFields = [
   ["company", "Nome azienda"],
-  ["contact", "Referente"],
-  ["email", "Email"],
-  ["phone", "Telefono"],
+  ["province", "Provincia"],
 ];
 
 const serviceMethodMap = {
@@ -177,6 +172,79 @@ function checkedServices() {
   return Array.from(form.querySelectorAll('input[name="services"]:checked')).map(
     (item) => item.value
   );
+}
+
+function getAiSuggestedServices() {
+  const services = new Set();
+  const hasWebsiteSignals =
+    hasUrl("website") ||
+    checked("hasWebsite") ||
+    checked("needsMobile") ||
+    checked("needsTracking") ||
+    checked("contentOpportunity") ||
+    Boolean(value("webNotes"));
+  const hasSeoSignals =
+    checked("needsSeo") ||
+    checked("keywordGap") ||
+    checked("positioning") ||
+    numberValue("organicTraffic") > 0 ||
+    numberValue("seoKeywords") > 0;
+  const hasCompetitorSignals =
+    checked("competitorBenchmark") ||
+    Boolean(value("competitors")) ||
+    checked("keywordGap");
+  const hasSocialSignals =
+    hasUrl("instagram") ||
+    hasUrl("facebook") ||
+    hasUrl("linkedin") ||
+    numberValue("instagramFollowers") > 0 ||
+    numberValue("instagramPosts") > 0 ||
+    numberValue("facebookFollowers") > 0 ||
+    numberValue("facebookEngagement") > 0 ||
+    numberValue("linkedinFollowers") > 0 ||
+    numberValue("linkedinPosts") > 0 ||
+    checked("socialMarketing");
+  const hasCampaignSignals =
+    checkedCampaigns().length > 0 ||
+    value("campaignObjective") !== "Da definire" ||
+    value("campaignBudget") !== "Da definire" ||
+    Boolean(value("campaignArea")) ||
+    Boolean(value("campaignNotes"));
+
+  if (!hasUrl("website") || hasWebsiteSignals) services.add("Sito web");
+  if (hasSeoSignals || checked("searchMarketing") || checked("cpcMarketing")) services.add("Audit SEO");
+  if (checked("localSeo") || value("province")) services.add("SEO locale");
+  if (hasSocialSignals) services.add("Analisi social");
+  if (hasCompetitorSignals) services.add("Benchmark competitor");
+  if (hasCampaignSignals) services.add("Campagne Ads");
+  if (checked("needsTracking") || checked("conversionTracking") || checked("landingCampaigns")) {
+    services.add("CRM e tracking");
+  }
+  if (hasSeoSignals || hasSocialSignals || hasCampaignSignals || value("dataInsight")) {
+    services.add("Analisi dati e AI");
+  }
+  if (
+    value("brandNarrative") ||
+    value("goal") === "Migliorare reputazione online" ||
+    checked("creativeCampaigns")
+  ) {
+    services.add("Strategia narrativa");
+  }
+  if (value("goal") === "Vendere prodotti o servizi" || value("campaignType") === "Fidelizzazione") {
+    services.add("Newsletter");
+  }
+
+  return services;
+}
+
+function applyAiSuggestedServices() {
+  const suggestedServices = getAiSuggestedServices();
+
+  form.querySelectorAll('input[name="services"]').forEach((item) => {
+    if (suggestedServices.has(item.value)) {
+      item.checked = true;
+    }
+  });
 }
 
 function checkedCampaigns() {
@@ -270,10 +338,8 @@ function getScores() {
   if (value("campaignType") !== "Da definire") campaign += 6;
 
   if (value("company")) strategy += 10;
-  if (value("contact")) strategy += 8;
-  if (value("email")) strategy += 8;
-  if (value("phone")) strategy += 6;
-  if (value("province")) strategy += 6;
+  if (value("sector")) strategy += 8;
+  if (value("province")) strategy += 8;
   strategy += checkedServices().length * 7;
   if (value("budget") !== "Da definire") strategy += 10;
   if (value("priority") === "Alta") strategy += 5;
@@ -807,6 +873,8 @@ function fillGuidedStrategyFields(force = false) {
   const aiUse = form.elements.aiUse;
   const campaignType = form.elements.campaignType;
 
+  if (force) applyAiSuggestedServices();
+
   if (dataInsight && (force || !dataInsight.value.trim())) {
     dataInsight.value = buildGeneratedInsight();
   }
@@ -992,6 +1060,7 @@ function renderAiStrategy(forceStrategy = false) {
   if (forceStrategy) fillGuidedStrategyFields(true);
   aiOutput.innerHTML = buildAiStrategyHtml();
   fillRecommendedStrategy(forceStrategy);
+  if (forceStrategy) updateInsights();
 }
 
 function handleFormUpdate() {
