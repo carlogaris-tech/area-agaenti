@@ -1,4 +1,4 @@
-const APP_VERSION = "1.08";
+const APP_VERSION = "1.09";
 const form = document.querySelector("#clientForm");
 const panelVersion = document.querySelector("#panelVersion");
 const scoreValue = document.querySelector("#scoreValue");
@@ -1303,7 +1303,7 @@ resetForm.addEventListener("click", () => {
   handleFormUpdate();
 });
 
-if (panelVersion) panelVersion.textContent = `v${APP_VERSION}`;
+if (panelVersion) panelVersion.textContent = `v${APP_VERSION} beta`;
 initPasswordGate();
 updateInsights();
 renderProjects();
