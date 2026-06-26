@@ -1,4 +1,4 @@
-const APP_VERSION = "1.07";
+const APP_VERSION = "1.08";
 const form = document.querySelector("#clientForm");
 const panelVersion = document.querySelector("#panelVersion");
 const scoreValue = document.querySelector("#scoreValue");
