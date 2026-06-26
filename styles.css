@@ -190,17 +190,100 @@ a {
 }
 
 .sidebar nav a {
+  --nav-accent: var(--teal);
+  --nav-soft: rgba(32, 214, 197, 0.11);
+  --nav-strong: rgba(32, 214, 197, 0.22);
+  --nav-border: rgba(32, 214, 197, 0.42);
+  --nav-shadow: rgba(32, 214, 197, 0.18);
+  position: relative;
+  overflow: hidden;
   padding: 12px 14px;
   border-radius: 8px;
   color: rgba(248, 251, 252, 0.78);
   border: 1px solid transparent;
+  background:
+    linear-gradient(135deg, var(--nav-soft), transparent 72%),
+    rgba(255, 255, 255, 0.025);
+  transition:
+    color 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease,
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.sidebar nav a::after {
+  content: "";
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 7px;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--nav-accent);
+  opacity: 0.72;
+  transform: scaleX(0.28);
+  transform-origin: left;
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease;
+}
+
+.sidebar nav a[data-nav-color="client"] {
+  --nav-accent: var(--teal);
+  --nav-soft: rgba(32, 214, 197, 0.11);
+  --nav-strong: rgba(32, 214, 197, 0.22);
+  --nav-border: rgba(32, 214, 197, 0.42);
+  --nav-shadow: rgba(32, 214, 197, 0.18);
+}
+
+.sidebar nav a[data-nav-color="analysis"] {
+  --nav-accent: var(--violet);
+  --nav-soft: rgba(157, 124, 255, 0.13);
+  --nav-strong: rgba(157, 124, 255, 0.24);
+  --nav-border: rgba(157, 124, 255, 0.46);
+  --nav-shadow: rgba(157, 124, 255, 0.18);
+}
+
+.sidebar nav a[data-nav-color="strategy"] {
+  --nav-accent: var(--amber);
+  --nav-soft: rgba(255, 212, 59, 0.12);
+  --nav-strong: rgba(255, 212, 59, 0.22);
+  --nav-border: rgba(255, 212, 59, 0.42);
+  --nav-shadow: rgba(255, 212, 59, 0.17);
+}
+
+.sidebar nav a[data-nav-color="ai"] {
+  --nav-accent: var(--lime);
+  --nav-soft: rgba(143, 212, 0, 0.12);
+  --nav-strong: rgba(143, 212, 0, 0.22);
+  --nav-border: rgba(143, 212, 0, 0.42);
+  --nav-shadow: rgba(143, 212, 0, 0.17);
+}
+
+.sidebar nav a[data-nav-color="pipeline"] {
+  --nav-accent: var(--coral);
+  --nav-soft: rgba(255, 107, 74, 0.12);
+  --nav-strong: rgba(255, 107, 74, 0.22);
+  --nav-border: rgba(255, 107, 74, 0.42);
+  --nav-shadow: rgba(255, 107, 74, 0.17);
 }
 
 .sidebar nav a:hover,
 .sidebar nav a.is-active {
   color: #fff;
-  border-color: rgba(32, 214, 197, 0.3);
-  background: linear-gradient(135deg, rgba(32, 214, 197, 0.18), rgba(143, 212, 0, 0.12));
+  border-color: var(--nav-border);
+  background:
+    linear-gradient(135deg, var(--nav-strong), rgba(255, 255, 255, 0.055)),
+    rgba(255, 255, 255, 0.045);
+  box-shadow: 0 12px 28px var(--nav-shadow);
+  transform: translateX(3px);
+}
+
+.sidebar nav a:hover::after,
+.sidebar nav a.is-active::after {
+  opacity: 1;
+  transform: scaleX(1);
 }
 
 .agent-card {
