@@ -514,6 +514,15 @@ textarea:focus {
   background: rgba(255, 255, 255, 0.055);
 }
 
+.offer-box label:has(input:checked) {
+  color: #07111f;
+  border-color: rgba(255, 212, 59, 0.62);
+  background: linear-gradient(135deg, var(--amber), var(--lime));
+  box-shadow:
+    0 12px 30px rgba(255, 212, 59, 0.18),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.28);
+}
+
 input[type="checkbox"] {
   width: 18px;
   height: 18px;
